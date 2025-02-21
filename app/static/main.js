@@ -1,3 +1,5 @@
+let allowAutoHeight = false;
+let allowAutoWidth = false;
 
 document.getElementById("image-display-container").addEventListener("click", function() {
     document.getElementById("photo-upload").click();
@@ -12,9 +14,9 @@ function handleUpload(e) {
     let url = ""
     if (e.dataTransfer) {
         url = e.dataTransfer.getData("text/uri-list");
-        document.getElementById("imageurl").querySelector(".detail-text").value = url;
+        document.getElementById("imageurl").querySelector(".detail-value").value = url;
     } else {
-        document.getElementById("imageurl").querySelector(".detail-text").value = "";
+        document.getElementById("imageurl").querySelector(".detail-value").value = "";
     }
 
     // Handle drag and drop from the web
@@ -57,7 +59,6 @@ function handleUpload(e) {
 
         
     }
-
 }
 
 function updateImageDisplayUI(imageUploaded) {
@@ -85,24 +86,28 @@ function clearAll() {
     imageWrapperDiv.classList.remove("populated")
     imgElement.src = ""
 
-    document.getElementById("imageurl").querySelector(".detail-text").value = "";
-    document.getElementById("model-checkpoint").querySelector(".detail-text").value = ""
-    document.getElementById("vae").querySelector(".detail-text").value = ""
-    document.getElementById("positive-prompt").querySelector(".detail-text").value = ""
-    document.getElementById("negative-prompt").querySelector(".detail-text").value = ""
+    document.getElementById("imageurl").querySelector(".detail-value").value = "";
+    document.getElementById("model-checkpoint").querySelector(".detail-value").value = ""
+    document.getElementById("vae").querySelector(".detail-value").value = ""
+    document.getElementById("positive-prompt").querySelector(".detail-value").value = ""
+    document.getElementById("negative-prompt").querySelector(".detail-value").value = ""
     // document.getElementById("loras")
     // document.getElementById("weighted-tags")
-    document.getElementById("steps").querySelector(".detail-text").value = ""
-    document.getElementById("sampler").querySelector(".detail-text").value = ""
-    document.getElementById("schedule-type").querySelector(".detail-text").value = ""
-    document.getElementById("cfg-scale").querySelector(".detail-text").value = ""
-    document.getElementById("seed").querySelector(".detail-text").value = ""
+    document.getElementById("steps").querySelector(".detail-value").value = ""
+    document.getElementById("sampler").querySelector(".detail-value").value = ""
+    document.getElementById("schedule-type").querySelector(".detail-value").value = ""
+    document.getElementById("cfg-scale").querySelector(".detail-value").value = ""
+    document.getElementById("seed").querySelector(".detail-value").value = ""
+    document.getElementById("width").querySelector(".detail-value").value = ""
+    document.getElementById("height").querySelector(".detail-value").value = ""
 
 }
 
 document.getElementById("clear-btn").addEventListener("click", clearAll)
 
-// Enable drag-and-drop
+// ----------------------------- //
+// Implement drag-and-drop
+// ----------------------------- //
 const displayContainer = document.getElementById("image-display-container");
 
 displayContainer.addEventListener("dragover", function (e) {
@@ -122,7 +127,6 @@ displayContainer.addEventListener("drop", function (e) {
 });
 
 document.getElementById("extract-prompt-btn").addEventListener("click", function() {
-    // const imgElem = document.getElementById("image-display-container").querySelector("img");
     const photoUploadInput = document.getElementById("photo-upload");
     
     if (photoUploadInput.files[0] == 0) return;
@@ -138,45 +142,69 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
     })
     .then(response => response.json())
     .then(data => {
-        document.getElementById("model-checkpoint").querySelector(".detail-text").value = data["generation"]["settings"]["model"]
+        document.getElementById("model-checkpoint").querySelector(".detail-value").value = data["generation"]["settings"]["model"]
         
         if (!data["generation"]["settings"]["vae"]) data["generation"]["settings"]["vae"] = ""
-        document.getElementById("vae").querySelector(".detail-text").value = data["generation"]["settings"]["vae"]
+        document.getElementById("vae").querySelector(".detail-value").value = data["generation"]["settings"]["vae"]
 
-        document.getElementById("positive-prompt").querySelector(".detail-text").value = data["generation"]["positive"]
-        document.getElementById("negative-prompt").querySelector(".detail-text").value = data["generation"]["negative"]
+        document.getElementById("positive-prompt").querySelector(".detail-value").value = data["generation"]["positive"]
+        document.getElementById("negative-prompt").querySelector(".detail-value").value = data["generation"]["negative"]
         // document.getElementById("loras")
         // document.getElementById("weighted-tags")
         
-        document.getElementById("steps").querySelector(".detail-text").value = data["generation"]["settings"]["steps"]
+        document.getElementById("steps").querySelector(".detail-value").value = data["generation"]["settings"]["steps"]
         
         if (!data["generation"]["settings"]["sampler"]) data["generation"]["settings"]["sampler"] = ""
-        document.getElementById("sampler").querySelector(".detail-text").value = data["generation"]["settings"]["sampler"]
+        document.getElementById("sampler").querySelector(".detail-value").value = data["generation"]["settings"]["sampler"]
         if (!data["generation"]["settings"]["schedule-type"]) data["generation"]["settings"]["schedule_type"] = ""
-        document.getElementById("schedule-type").querySelector(".detail-text").value = data["generation"]["settings"]["schedule_type"]
+        document.getElementById("schedule-type").querySelector(".detail-value").value = data["generation"]["settings"]["schedule_type"]
 
-        document.getElementById("cfg-scale").querySelector(".detail-text").value = data["generation"]["settings"]["cfg_scale"]
+        document.getElementById("cfg-scale").querySelector(".detail-value").value = data["generation"]["settings"]["cfg_scale"]
         
-        document.getElementById("seed").querySelector(".detail-text").value = data["generation"]["settings"]["seed"]
+        document.getElementById("seed").querySelector(".detail-value").value = data["generation"]["settings"]["seed"]
+        
+        let size = data["generation"]["settings"]["size"];
+        let width = parseInt(size.split("x")[0]);
+        let height = parseInt(size.split("x")[1]);
+        let imageRatio = getImageRatio(width, height)
+        document.getElementById("width").querySelector(".detail-value").value = width;
+        document.getElementById("height").querySelector(".detail-value").value = height;
+
     })
     .catch(error => console.log("ERROR:", error))
 
 })
 
-function getGenerationData(randomSeed=true) {
+// ----------------------------- //
+// Handling Image Size/Res
+// ----------------------------- //
+document.getElementById("swap-orientation-btn").addEventListener("click", function() {
+    let width = getWidth();
+    let height = getHeight();
 
-    let positivePrompt = document.getElementById("positive-prompt").querySelector(".detail-text").value;
-    let negativePrompt = document.getElementById("negative-prompt").querySelector(".detail-text").value;
-    let steps = document.getElementById("steps").querySelector(".detail-text").value;
-    let cfgScale = document.getElementById("cfg-scale").querySelector(".detail-text").value;
-    let sampler = document.getElementById("sampler").querySelector(".detail-text").value;
-    let scheduleType = document.getElementById("schedule-type").querySelector(".detail-text").value;
+    setInputHeight(width)
+    setInputWidth(height)
+})
+
+
+// ----------------------------- //
+// Copying data to clipboard
+// ----------------------------- //
+function genDataToRawString(randomSeed=true) {
+
+    let positivePrompt = document.getElementById("positive-prompt").querySelector(".detail-value").value;
+    let negativePrompt = document.getElementById("negative-prompt").querySelector(".detail-value").value;
+    let steps = document.getElementById("steps").querySelector(".detail-value").value;
+    let cfgScale = document.getElementById("cfg-scale").querySelector(".detail-value").value;
+    let sampler = document.getElementById("sampler").querySelector(".detail-value").value;
+    let scheduleType = document.getElementById("schedule-type").querySelector(".detail-value").value;
 
     let samplerSched = `${sampler} ${scheduleType}`
 
-    let modelCheckpoint = document.getElementById("model-checkpoint").querySelector(".detail-text").value;
-    let vaeModel = document.getElementById("vae").querySelector(".detail-text").value;
-    let seed = document.getElementById("seed").querySelector(".detail-text").value;
+    let modelCheckpoint = document.getElementById("model-checkpoint").querySelector(".detail-value").value;
+    let vaeModel = document.getElementById("vae").querySelector(".detail-value").value;
+    let seed = document.getElementById("seed").querySelector(".detail-value").value;
+    
     if (randomSeed == true) {
         seed = "-1";
     }
@@ -184,25 +212,33 @@ function getGenerationData(randomSeed=true) {
     // document.getElementById("loras")
     // document.getElementById("weighted-tags")
 
-    let string = `
-${positivePrompt}
-Negative prompt: ${negativePrompt}
-Steps: ${steps}, CFG scale: ${cfgScale}, Sampler: ${samplerSched}, Seed: ${seed}
-    `
-    // let string = `${positivePrompt}\nNegative prompt: ${negativePrompt}\nSteps: ${steps}, CFG scale: ${cfgScale}, Sampler: ${samplerSched}, Seed: ${seed}`
+    let string = `${positivePrompt}\nNegative prompt: ${negativePrompt}\nSteps: ${steps}, CFG scale: ${cfgScale}, Sampler: ${samplerSched}, Seed: ${seed}`
 
     return string
 }
 
 document.getElementById("copy-raw").addEventListener("click", function(e) {
-    let generationDataString = getGenerationData(true)
+    let generationDataString = genDataToRawString(true)
     navigator.clipboard.writeText(generationDataString.trim())
 })
 
 document.getElementById("copy-raw-with-seed").addEventListener("click", function(e) {
-    let generationDataString = getGenerationData(false)
+    let generationDataString = genDataToRawString(false)
     navigator.clipboard.writeText(generationDataString.trim())
 })
 
 
 
+// ----------------------------- //
+// 
+// ----------------------------- //
+document.getElementById("hide-image-btn").addEventListener("click", function() {
+    let imgElem = document.querySelector("#image-preview img");
+    if (imgElem.classList.contains("discreet")) {
+        imgElem.classList.remove("discreet")
+        document.getElementById("hide-image-btn").textContent = "Hide"
+    } else {
+        imgElem.classList.add("discreet")
+        document.getElementById("hide-image-btn").textContent = "Show"
+    }
+})

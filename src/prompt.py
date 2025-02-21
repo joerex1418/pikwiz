@@ -3,8 +3,9 @@ import json
 from pathlib import Path
 
 from .color import console_color as console
-
 from .civitai_api import bulk_resource_lookup
+from .util import parse_weighted_prompt_tags
+
 
 CIVITAI_SAMPLERS = {
     "Euler a": ["Euler a", "Automatic"],
@@ -28,6 +29,7 @@ CIVITAI_MODEL_FILE_TYPES = {
     # "Core ML": ".zip",
 
 }
+
 
 def parse_prompt_string(raw_prompt_string):
     _json_data = None
@@ -110,12 +112,14 @@ def parse_prompt_string(raw_prompt_string):
     # --------------------------------------- #
     lora_weights = re.findall(r"<lora:(?P<name>.*?):?(?P<weight>\d+|\d+\.\d+)?>", positive_prompt, re.DOTALL | re.IGNORECASE)
     embed_weights = re.findall(r"<embed:(?P<name>.*?):?(?P<weight>\d+|\d+\.\d+)?>", positive_prompt, re.DOTALL | re.IGNORECASE)
+    lora_weights = [[x[0], float(x[1])] for x in lora_weights]
+    embed_weights = [[x[0], float(x[1])] for x in embed_weights]
 
     # --------------------------------------- #
     # Get Weighted Prompt Tags
     # --------------------------------------- #
-    positive_prompt_weight_tags = _weighted_prompt_tags(positive_prompt)
-    negative_prompt_weight_tags = _weighted_prompt_tags(negative_prompt)
+    positive_prompt_weight_tags = parse_weighted_prompt_tags(positive_prompt)
+    negative_prompt_weight_tags = parse_weighted_prompt_tags(negative_prompt)
 
     # --------------------------------------- #
     # Separate Settings and CivitAI data
@@ -195,10 +199,6 @@ def parse_prompt_string(raw_prompt_string):
         if setting_key not in standard_keys:
             settings_dict[f"_{setting_key}"] = settings_dict.pop(setting_key)
 
-        # elif "created at" == setting_key.lower():
-        #     settings_dict["created_date"] = settings_dict.pop(setting_key)
-        # elif "hashes" == setting_key.lower():
-        #     settings_dict[setting_key] = settings_dict.pop(setting_key)
 
     # --------------------------------------- #
     # Read CivitAI JSON data to dictionary
@@ -267,8 +267,7 @@ def parse_prompt_string(raw_prompt_string):
                     settings_dict["vae"] = resource["model_name"]
                     standard_keys["vae"] = "VAE"
 
-    # console.print_json(data=civitai_resources)
-    # console.print_json(data=settings_dict)
+
     if "model" not in settings_dict:
         for rsrc in civitai_resources:
             if rsrc.get("sub_type", "").lower() in ("checkpoint", "base model"):
@@ -298,70 +297,4 @@ def parse_prompt_string(raw_prompt_string):
     return generation_data
 
 
-def _calculate_weight(number_of_parentheses:int, decrease:bool=False):
-    weight = 1.0
-    
-    if decrease != True:
-        for _ in range(number_of_parentheses):
-            weight = weight + (weight * 0.1)
-    else:
-        for _ in range(number_of_parentheses):
-            weight = weight - (weight * 0.1)
-    
-    return weight
-
-
-def _weighted_prompt_tags(prompt:str) -> dict:
-    if not isinstance(prompt, str):
-        return {}
-    
-    weighted_prompt_tags = {}
-
-    # Weight INCREASES
-    tag_weights = re.findall(
-        r"\(([^()].*?)\)", 
-        prompt, 
-        re.DOTALL | re.IGNORECASE)
-
-    for t in tag_weights:
-        if ":" not in t:
-            open_match = re.search(rf"(\(+){re.escape(t)}", prompt, re.IGNORECASE)
-            close_match = re.search(rf"{re.escape(t)}(\)+)", prompt, re.IGNORECASE)
-
-            if open_match and close_match:
-                open_count = open_match.group().count("(")
-                close_count = close_match.group().count(")")
-                if open_count == close_count:
-                    weight = _calculate_weight(open_count)
-                    weight = round(weight, 4)
-                    weighted_prompt_tags[t] = {"weight": weight, "type": "implicit"}
-        else:
-            weight = t.split(":")[1]
-            weight = round(float(weight), 4)
-            weighted_prompt_tags[t.split(":")[0]] = {"weight": weight, "type": "explicit"}
-    
-    # Weight DECREASES
-    tag_weights_dec = re.findall(
-        r"\[([^\[\]].*?)\]", 
-        prompt, 
-        re.DOTALL | re.IGNORECASE)
-    
-    for t in tag_weights_dec:
-        if ":" not in t:
-            open_match = re.search(rf"(\[+){re.escape(t)}", prompt, re.IGNORECASE)
-            close_match = re.search(rf"{re.escape(t)}(\]+)", prompt, re.IGNORECASE)
-
-            if open_match and close_match:
-                open_count = open_match.group().count("[")
-                close_count = close_match.group().count("]")
-                if open_count == close_count:
-                    weight = _calculate_weight(open_count, decrease=True)
-                    weight = round(weight, 4)
-                    weighted_prompt_tags[t] = {"weight": weight, "type": "implicit"}
-        else:
-            weight = t.split(":")[1]
-            weight = round(float(weight), 4)
-            weighted_prompt_tags[t.split(":")[0]] = {"weight": weight, "type": "explicit"}
-    
-    return weighted_prompt_tags
 

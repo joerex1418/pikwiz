@@ -18,13 +18,14 @@
             </div>
             <input id="photo-upload" name="photo-upload" type="file" accept="image/*" style="display: none;">
             <div id="image-preview">
-                <img src="" alt="">
+                <img src="" alt="" class="">
             </div>
         </div>
         
         <div class="btn-bar">
             <div id="clear-btn" class="btn">Clear All</div>
             <div id="extract-prompt-btn" class="btn">Extract Details</div>
+            <div id="hide-image-btn" class="btn">Hide</div>
         </div>
     </div>
 
@@ -32,72 +33,92 @@
         <div id="grid-url" class="details-grid">
             <div id="imageurl" class="detail-wrapper">
                 <div class="detail-label">Image URL:</div>
-                <input class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
+                <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
             </div>
         </div>
 
         <div id="grid-1" class="details-grid">
             <div id="model-checkpoint" class="detail-wrapper">
                 <div class="detail-label">Model/Checkpoint:</div>
-                <input class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
+                <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
             </div>
             <div id="vae" class="detail-wrapper">
                 <div class="detail-label">VAE:</div>
-                <input class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
+                <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
             </div>
         </div>
 
         <div id="grid-2" class="details-grid">
             <div id="positive-prompt" class="detail-wrapper">
                 <div class="detail-label">Positive Prompt:</div>
-                <textarea class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+                <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
             
             <div id="negative-prompt" class="detail-wrapper">
                 <div class="detail-label">Negative Prompt:</div>
-                <textarea class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+                <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
 
             <div id="loras" class="detail-wrapper">
                 <div class="detail-label">Loras:</div>
-                <textarea class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+                <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
 
             <div id="weighted-tags" class="detail-wrapper">
                 <div class="detail-label">Weighted Tags:</div>
-                <textarea class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+                <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
         </div>
 
         <div id="grid-3" class="details-grid">
-            <div id="sampler" class="detail-wrapper">
-                <div class="detail-label">Sampler:</div>
-                <input class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
+            <div class="inner-col">
+                <div id="steps" class="detail-wrapper hz">
+                    <div class="detail-label">Steps:</div>
+                    <input class="detail-value steps" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
+                </div>
+    
+                <div id="cfg-scale" class="detail-wrapper hz">
+                    <div class="detail-label">CFG Scale:</div>
+                    <input class="detail-value cfg-scale" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
+                </div>
+    
+                <div id="seed" class="detail-wrapper hz">
+                    <div class="detail-label">Seed:</div>
+                    <input class="detail-value seed" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
+                </div>
             </div>
 
-            <div id="schedule-type" class="detail-wrapper">
-                <div class="detail-label">Schedule Type:</div>
-                <input class="detail-text" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
+            <div class="inner-col">
+                <div id="sampler" class="detail-wrapper">
+                    <div class="detail-label">Sampler:</div>
+                    <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
+                </div>
+    
+                <div id="schedule-type" class="detail-wrapper">
+                    <div class="detail-label">Schedule Type:</div>
+                    <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
+                </div>
+
             </div>
+
         </div>
-        
-        <div id="grid-4" class="details-grid">
 
-            <div id="steps" class="detail-wrapper hz">
-                <div class="detail-label">Steps:</div>
-                <input class="detail-text steps" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
+        <div id="grid-5" class="details-grid">
+            <div id="swap-wrapper">
+                <div id="swap-orientation-btn" class="btn">
+                    <svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" transform="rotate(270)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g data-name="Layer 2"> <g data-name="swap"> <rect width="24" height="24" transform="rotate(-90 12 12)" opacity="0"></rect> <path d="M4 9h13l-1.6 1.2a1 1 0 0 0-.2 1.4 1 1 0 0 0 .8.4 1 1 0 0 0 .6-.2l4-3a1 1 0 0 0 0-1.59l-3.86-3a1 1 0 0 0-1.23 1.58L17.08 7H4a1 1 0 0 0 0 2z"></path> <path d="M20 16H7l1.6-1.2a1 1 0 0 0-1.2-1.6l-4 3a1 1 0 0 0 0 1.59l3.86 3a1 1 0 0 0 .61.21 1 1 0 0 0 .79-.39 1 1 0 0 0-.17-1.4L6.92 18H20a1 1 0 0 0 0-2z"></path> </g> </g> </g></svg>
+                </div>
             </div>
 
-            <div id="cfg-scale" class="detail-wrapper hz">
-                <div class="detail-label">CFG Scale:</div>
-                <input class="detail-text cfg-scale" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
+            <div id="width" class="detail-wrapper hz">
+                <div class="detail-label">Width:</div>
+                <input class="detail-value width" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
             </div>
 
-            <div id="seed" class="detail-wrapper hz">
-                <div class="detail-label">Seed:</div>
-                <input class="detail-text seed" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
+            <div id="height" class="detail-wrapper hz">
+                <div class="detail-label">Height:</div>
+                <input class="detail-value height" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
             </div>
-
         </div>
 
         <div id="grid-last" class="details-grid">
@@ -109,4 +130,5 @@
     <!-- <div id="image-generation-rawmeta-container" class="container"></div> -->
 
 </div>
+
 {% endblock primary %}

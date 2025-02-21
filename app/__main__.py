@@ -77,8 +77,6 @@ def extract_prompt():
         "raw": img.raw_prompt
     }
 
-    # console.print_json(data=data)
-
     with open("temp.json", "w+") as fp:
         json.dump(data, fp)
 
