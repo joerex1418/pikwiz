@@ -1,0 +1,6 @@
+pillow
+httpx
+flask
+flask_assets
+pyscss
+rich
