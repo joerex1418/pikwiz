@@ -14,10 +14,13 @@ sys.path.insert(0, str(project_root))
 
 from src.read import ImageData
 from src.prompt import parse_prompt_string
+from src.color import color
 from src.color import console_color as console
 from src.civitai_api import model_lookup
 from src.civitai_api import model_version_lookup
 from src.civitai_api import bulk_resource_lookup
+from src.util import RESOLUTIONS
+from src.util import generate_resolution_json, load_resolution_json
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -26,13 +29,37 @@ assets = Environment(app)
 scss = Bundle('style.scss', filters='pyscss', output='style.css')
 assets.register('style',scss)
 
+# generate_resolution_json()
+
 @app.context_processor
 def inject_dict_for_all_templates():
     return {}
 
 @app.route("/")
 def index():
-    return render_template('index.html')
+    generate_resolution_json()
+    resolutions_json = load_resolution_json()
+    
+    square = [x for x in resolutions_json if x["orientation"] == "square"]
+    nonsquare = [x for x in resolutions_json if x["orientation"] != "square"]
+    portrait = [x for x in resolutions_json if x["orientation"] == "portrait"]
+    landscape = [x for x in resolutions_json if x["orientation"] == "landscape"]
+
+    square_ars = ["1:1"]
+    # Only need to filter by 'portrait'; I'll swap on client side
+    nonsquare_ars = list({x["aspectRatio"] for x in resolutions_json if x["orientation"] != "portrait"}) 
+    
+    ar_to_res_map = {"1:1": []}
+    for x in resolutions_json:
+        if x["orientation"] == "square":
+            ar_to_res_map["1:1"].append(x)
+        elif x["orientation"] == "portrait": # only need to filter by portrait; I'll swap on client side
+            if x["aspectRatio"] not in ar_to_res_map:
+                ar_to_res_map[x["aspectRatio"]] = []
+            
+            ar_to_res_map[x["aspectRatio"]].append(x)
+
+    return render_template('index.html', ar_to_res_map=ar_to_res_map, square=square, nonsquare=nonsquare, portrait=portrait, landscape=landscape, nonsquare_ars=nonsquare_ars)
 
 @app.route("/dev")
 def dev():

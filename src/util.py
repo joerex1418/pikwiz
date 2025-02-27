@@ -1,4 +1,6 @@
 import re
+import json
+import pathlib
 import asyncio
 
 import httpx
@@ -165,3 +167,110 @@ def parse_weighted_prompt_tags(prompt:str) -> dict:
             weighted_prompt_tags[t.split(":")[0]] = {"weight": weight, "type": "explicit"}
     
     return weighted_prompt_tags
+
+
+# ------------------------------------------ #
+# Resolutions
+#   - best values divisible by 8
+# ------------------------------------------ #
+
+RESOLUTIONS = [
+    (262144, 1, 1, "512x512", None),
+    (589824, 1, 1, "768x768", None),
+    (1048576, 1, 1, "1024x1024", "SDXL"),
+    # (2359296, 1, 1, "1536x1536", "SDXL"),
+    
+    (294912, 1, 2, "384x768", None),
+    (524288, 1, 2, "512x1024", None),
+    
+    (262144, 1, 4, "256x1024", None),
+    (589824, 1, 4, "384x1536", None),
+    (1048576, 1, 4, "512x2048", "SDXL"),
+    
+    (393216, 2, 3, "512x768", None),
+    (884736, 2, 3, "768x1152", "SDXL"),
+    (1038336, 2, 3, "832x1248", "SDXL"),
+
+    (442368, 3, 4, "576x768", None),
+    (786432, 3, 4, "768x1024", "SDXL"),
+    (995328, 3, 4, "864x1152", "SDXL"),
+    (1034880, 3, 4, "880x1176", "SDXL"),
+    # (1044288, 3, 4, "888x1176", "SDXL"),
+    # (1228800, 3, 4, "960x1280", "SDXL"),
+
+    (327680, 4, 5, "512x640", None),
+    (737280, 4, 5, "768x960", "SDXL"),
+    (1003520, 4, 5, "896x1120", "SDXL"),
+    (1043328, 4, 5, "912x1144", "SDXL"),
+    # (1310720, 4, 5, "1024x1280", None),
+    
+    (258048, 4, 7, "384x672", None),
+    (458752, 4, 7, "512x896", None),
+    (716800, 4, 7, "640x1120", None),
+    (1032192, 4, 7, "768x1344", "SDXL"),
+
+    (983040, 5, 12, "640x1536", "SDXL"),
+
+    (1032192, 7, 9, "896x1152", "SDXL"),
+
+    (252928, 9, 13, "416x608", None),
+    (1011712, 9, 13, "832x1216", "SDXL"),
+
+    (466944, 9, 16, "512x912", "SD15"),
+    # (746496, 9, 16, "648x1152", "SD21"),
+    (1044480, 9, 16, "768x1360", "SDXL"),
+
+    # Irregular ratios
+    # (259200, 1.618, 1, "648x400", None),
+    # (425984, 1.618, 1, "832x512", None),
+    # (660480, 1.618, 1, "1032x640", "SDXL"),
+    # (952320, 1.618, 1, "1240x768", "SDXL"),
+    # (1036800, 1.618, 1, "1296x800", "SDXL"),
+
+
+]
+
+RESOLUTION_JSON_PATH = pathlib.Path(__file__).parents[1].joinpath("resolutions.json")
+
+def generate_resolution_json():
+    jsondata = []
+    
+    for row in RESOLUTIONS:
+        if row[1] not in (None, 1.618): # skip irregular sizes
+            ar_val_1, ar_val_2 = row[1], row[2]
+            res_val_1, res_val_2 = row[3].split("x")
+            res_val_1 = int(row[3].split("x")[0])
+            res_val_2 = int(row[3].split("x")[1])
+            pixels = int(res_val_1 * res_val_2)
+            model_rec = row[4]
+
+            if (ar_val_1, ar_val_2) == (1, 1):
+                orientations = ("square", )
+                aspect_ratios = ("1:1", )
+                resolutions = (f"{res_val_1}x{res_val_2}", )
+            else:
+                orientations = ("portrait", "landscape")
+                aspect_ratios = (f"{ar_val_1}:{ar_val_2}", f"{ar_val_2}:{ar_val_1}")
+                resolutions = (f"{res_val_1}x{res_val_2}", f"{res_val_2}x{res_val_1}")
+
+            for orientation, aspect_ratio, resolution in zip(orientations, aspect_ratios, resolutions):
+                jsondata.append({
+                    "pixels": pixels,
+                    "aspectRatio": aspect_ratio,
+                    "resolution": resolution,
+                    "width": int(resolution.split("x")[0]),
+                    "height": int(resolution.split("x")[1]),
+                    "orientation": orientation,
+                    "recommendedModel": model_rec,
+                })
+    
+    with RESOLUTION_JSON_PATH.open("w+") as fp:
+        json.dump(jsondata, fp)
+
+    return jsondata
+
+def load_resolution_json():
+    with RESOLUTION_JSON_PATH.open("r") as fp:
+        return json.load(fp)
+    
+    

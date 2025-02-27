@@ -5,6 +5,10 @@ document.getElementById("image-display-container").addEventListener("click", fun
     document.getElementById("photo-upload").click();
 })
 
+function resetScaleAdjust() {
+    document.querySelector("#scale-original-wrapper .detail-value").value = 1.0
+}
+
 function handleUpload(e) {
     const photoUploadInput = document.getElementById("photo-upload");
     const imageWrapperDiv = document.getElementById("image-display-container");
@@ -35,6 +39,7 @@ function handleUpload(e) {
                     imgElement.src = URL.createObjectURL(file);
                     photoUploadInput.files = dataTransfer.files;
                     updateImageDisplayUI(true)
+                    resetScaleAdjust();
                 }
             })
             .catch( error => {
@@ -43,7 +48,6 @@ function handleUpload(e) {
             })
     } else {
         const files = e.target?.files || e.dataTransfer?.files;
-        
         if (files.length) {
             // Assign new file to the input element
             const dataTransfer = new DataTransfer();
@@ -53,10 +57,11 @@ function handleUpload(e) {
             const file = photoUploadInput.files[0];
             imgElement.src = URL.createObjectURL(file);
             updateImageDisplayUI(true);
+            resetScaleAdjust();
         } else {
             updateImageDisplayUI(false)
+            resetScaleAdjust();
         }
-
         
     }
 }
@@ -168,7 +173,13 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         let height = parseInt(size.split("x")[1]);
         let imageRatio = getImageRatio(width, height)
         document.getElementById("width").querySelector(".detail-value").value = width;
+        document.querySelector("#width .detail-value").dataset["originalValue"] = width;
+
         document.getElementById("height").querySelector(".detail-value").value = height;
+        document.querySelector("#height .detail-value").dataset["originalValue"] = height;
+
+        // Reset scale adjustment to 1.00 by default
+        resetScaleAdjust();
 
     })
     .catch(error => console.log("ERROR:", error))
@@ -186,12 +197,85 @@ document.getElementById("swap-orientation-btn").addEventListener("click", functi
     setInputWidth(height)
 })
 
+// ----------------------------- //
+// Scale Event
+// ----------------------------- //
+document.querySelector("#scale-original-wrapper .detail-value").addEventListener("change", function(e) {
+    const widthElem = document.querySelector("#width .detail-value");
+    const heightElem = document.querySelector("#height .detail-value");
+
+    if (widthElem.value && heightElem.value) {
+        let scaleFactor = parseFloat(document.querySelector("#scale-original-wrapper .detail-value").value)
+        let originalWidth = widthElem.dataset["originalValue"];
+        let originalHeight = heightElem.dataset["originalValue"];
+
+        widthElem.value = originalWidth * scaleFactor;
+        heightElem.value = originalHeight * scaleFactor;
+
+    }
+})
+
+// ----------------------------- //
+// Select Resize Method
+// ----------------------------- //
+document.getElementById("resize-tool-select-btn-bar").addEventListener("click", function(e) {
+    const resizeToolsWrapper = document.getElementById("resize-tools-wrapper");
+
+    if (e.target.classList.contains("tool-select-btn")) {
+        let selectedPrefix = e.target.dataset["prefix"];
+        
+        resizeToolsWrapper.querySelector(`.btn[data-prefix="${selectedPrefix}"]`).classList.add("active");
+        resizeToolsWrapper.querySelector(`.btn:not([data-prefix="${selectedPrefix}"])`).classList.remove("active");
+
+        resizeToolsWrapper.querySelector(`.detail-wrapper[data-prefix="${selectedPrefix}"]`).classList.add("active");
+        resizeToolsWrapper.querySelector(`.detail-wrapper:not([data-prefix="${selectedPrefix}"])`).classList.remove("active");
+    }
+})
+
+// ----------------------------- //
+// Select Orientation
+// ----------------------------- //
+document.getElementById("orientation-selection-btn-bar").addEventListener("click", function(e) {
+    const orientationBtnBar = document.getElementById("orientation-selection-btn-bar");
+
+    if (e.target.classList.contains("orientation-btn")) {
+        let selectedOrientation = e.target.dataset["orientation"]
+        
+        document.querySelectorAll(".orientation-btn").forEach(oriBtn => {
+            if (oriBtn == e.target) {
+                oriBtn.classList.add("active")
+            } else {
+                oriBtn.classList.remove("active")
+            }
+        })
+
+        if (selectedOrientation == "square") {
+            // Change Resolution Buttons
+            document.querySelectorAll(`.res-btn[data-orientation="square"]`).forEach(resBtn => {
+                resBtn.classList.add("active")
+            })
+            document.querySelectorAll(`.res-btn[data-orientation="portrait"], .res-btn[data-orientation="landscape"]`).forEach(resBtn => {
+                resBtn.classList.remove("active")
+            })
+        } else {
+            // Change Resolution Buttons
+            document.querySelectorAll(`.res-btn[data-orientation="square"]`).forEach(resBtn => {
+                resBtn.classList.remove("active")
+            })
+            document.querySelectorAll(`.res-btn[data-orientation="portrait"], .res-btn[data-orientation="landscape"]`).forEach(resBtn => {
+                resBtn.classList.add("active")
+                resBtn.dataset["orientation"] = selectedOrientation
+                resBtn.textContent = resBtn.dataset[selectedOrientation]
+            })
+        }
+
+    }
+})
 
 // ----------------------------- //
 // Copying data to clipboard
 // ----------------------------- //
 function genDataToRawString(randomSeed=true) {
-
     let positivePrompt = document.getElementById("positive-prompt").querySelector(".detail-value").value;
     let negativePrompt = document.getElementById("negative-prompt").querySelector(".detail-value").value;
     let steps = document.getElementById("steps").querySelector(".detail-value").value;
@@ -226,7 +310,6 @@ document.getElementById("copy-raw-with-seed").addEventListener("click", function
     let generationDataString = genDataToRawString(false)
     navigator.clipboard.writeText(generationDataString.trim())
 })
-
 
 
 // ----------------------------- //
