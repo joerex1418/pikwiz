@@ -91,9 +91,8 @@ def dev():
 @app.route("/civitai-dev")
 def civitai_dev():
     api = civitai("ea9b28c663e35006b1dd51162058724b")
-
-    # data = api.account_settings
-    # data = api.get_generated_images()
+    api.set_browsing_level(31)
+    # data = api.get_generation_queue()
     # data = api.get_user("FanofAnime99")
     # data = api.get_user("novowels")
     # data = api.get_user_models("novowels", sort_by="Highest Rated")
@@ -103,8 +102,10 @@ def civitai_dev():
     # data = api.get_user_hidden_settings()
     # data = api.get_account_settings()
     # data = api.get_account_buzz()
-    data = api.get_account_posts("fanofanime99")
-
+    # data = api.get_user_images(sort_by=PostSort.NEWEST, section="draft")
+    data = api.get_images()
+    # data = api.get_image_generation_data(60630705)
+    # data = api.account_settings
 
     return data
 

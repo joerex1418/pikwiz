@@ -12,22 +12,9 @@ from . import util
 _BrowsingLevel = int
 
 
-def _get_levels_from_bit_value(value: int) -> list[str]:
-    content_flags = {
-        "PG": 1,
-        "PG13": 2,
-        "R": 4,
-        "X": 8,
-        "XXX": 16
-    }
 
-    result = []  # List to store matching levels
-    
-    for level, bit in content_flags.items():
-        if value & bit:  # Check if the bit is set in the given value
-            result.append(level)  # Add the corresponding level to the list
-    
-    return result
+def to_json(data):
+    return json.dumps(data, separators=(",", ":"))
 
 
 class ModelSort:
@@ -54,6 +41,16 @@ class Tag:
     LIKED = "feedback:liked"
     DISLIKED = "feedback:disliked"
     FAVORITED = "favorite"
+
+class Technique:
+    TXT2IMG = 1
+    IMG2IMG = 2
+    INPAINTING = 3
+    WORKFLOW = 4
+    VID2VID = 5
+    TXT2VID = 6
+    IMG2VID = 7
+    CONTROLNET = 8
 
 class Period:
     DAY = "Day"
@@ -146,7 +143,7 @@ class civitai:
             self.set_browsing_level(*default_browsing_level)
     
 
-    def get_generated_images(self, cursor:str=None, asc:bool=False, tags:list[str]=None):
+    def get_generation_queue(self, cursor:str=None, asc:bool=False, tags:list[str]=None):
         url = self.base_trpc + "/orchestrator.queryGeneratedImages"
         
         tags = [] if tags == None else tags
@@ -174,6 +171,123 @@ class civitai:
             r = client.send(req)
 
             jsondata = r.json()
+
+            return jsondata
+
+
+    def get_image_generation_data(self, image_id:int, **kwargs):
+        """
+        """
+        
+        url = self.base_trpc + "/image.getGenerationData"
+
+        query_data = {"id": image_id, "authed":True}
+
+        input_json = to_json({"json": query_data})
+
+        params = {"input": input_json}
+
+        with httpx.Client() as client:
+            req = client.build_request("GET", url, params=params)
+
+            r = client.send(req)
+
+            jsondata = r.json().get("result", {}).get("data", {}).get("json", {})
+
+            return jsondata
+
+
+    def get_images(
+            self, 
+            cursor=None, 
+            sort_by=None,
+            period=None,
+            types:list[Literal["image", "video"]]=None,
+            tools:list=None,
+            base_models:list=None, 
+            made_onsite:bool=None, 
+            remixes_only:bool=None, 
+            techniques:list=None, 
+            has_metadata:bool=None, 
+            followed:bool=None, 
+            hidden:bool=None, 
+            **kwargs
+        ):
+        """
+        Fetch and query the image feed on CivitAI
+        """
+        
+        url = self.base_trpc + "/image.getInfinite"
+
+        sort_by = "Newest" if sort_by == None else sort_by
+        period = "AllTime" if period == None else period
+
+        query_data = {
+            "period": period, 
+            "sort": sort_by, 
+            "withMeta": False,
+            "fromPlatform": False,
+            "hideAutoResources": False,
+            "hideManualResources": False, 
+            "hidden": False,
+            "notPublished": False, 
+            "scheduled": False, 
+            "remixesOnly": False,
+            # "nonRemixesOnly": True, 
+            "useIndex": True, 
+            "browsingLevel": self.browsing_level, 
+            "include": ["cosmetics"],
+            "authed": True,
+        }
+
+        if types:
+            if isinstance(types, str):
+                types = [types]
+            types = [_type.lower() for _type in types]
+            query_data["types"] = types
+
+        if cursor:
+            query_data["cursor"] = cursor
+
+        if base_models:
+            if isinstance(base_models, str):
+                base_models = [base_models]
+            query_data["baseModels"] = base_models
+        
+        if made_onsite != None:
+            query_data["fromPlatform"] = made_onsite
+
+        if remixes_only != None:
+            query_data["remixesOnly"] = remixes_only
+            query_data["nonRemixesOnly"] = not remixes_only
+        
+        if techniques:
+            technique_map = {"txt2img": 1, "img2img": 2, "inpainting": 3, "workflow": 4, "vid2vid": 5, "txt2vid": 6, "img2vid": 7, "controlnet": 8}
+            query_data["techniques"] = []
+            for t in techniques:
+                if isinstance(t, int):
+                    query_data["techniques"].append(t)
+                elif isinstance(t, str):
+                    query_data["techniques"].append(technique_map[t.lower()])
+
+        if has_metadata != None:
+            query_data["withMeta"] = has_metadata
+            
+        if followed != None:
+            query_data["followed"] = followed
+        
+        if hidden != None:
+            query_data["hidden"] = hidden
+
+        input_json = to_json({"json": query_data})
+        params = {"input": input_json}
+
+        with httpx.Client(headers=self.auth_headers()) as client:
+            req = client.build_request("GET", url, params=params)
+
+            r = client.send(req)
+            
+            jsondata = r.json().get("result", {}).get("data", {}).get("json", {})
 
             return jsondata
 
@@ -207,8 +321,6 @@ class civitai:
     def get_user_models(self, username:str, sort_by:str=None, period:str=None, early_access:bool=None, onsite_generation:bool=None, made_onsite:bool=None, cursor:str=None):
         url = self.base_trpc + "/model.getAll"
 
-        browsing_level = self.default_browsing_level
-
         sort_by = "Newest" if sort_by == None else sort_by
         period = "AllTime" if period == None else period
         early_access = False if early_access == None else early_access
@@ -227,7 +339,7 @@ class civitai:
                 "fromPlatform": made_onsite, 
                 "supportsGeneration": onsite_generation,
                 # "limit": 5,
-                "browsingLevel": browsing_level,
+                "browsingLevel": self.browsing_level,
                 "authed": True
             }
         }
@@ -254,7 +366,7 @@ class civitai:
     def get_user_posts(self, username:str, sort_by:str=None, period:str=None, cursor:str=None, section: Literal["published","draft"]="published"):
         url = self.base_trpc + "/post.getInfinite"
 
-        browsing_level = self.default_browsing_level
+        browsing_level = self.browsing_level
 
         sort_by = "Newest" if sort_by == None else sort_by
         period = "AllTime" if period == None else period
@@ -300,72 +412,17 @@ class civitai:
             return jsondata
 
 
-    # This was dumb. I don't think this is helpful at all
-    async def _async_get_account_posts(self, username, sort_by, period, cursor, section):
-        url = self.base_trpc + "/post.getInfinite"
-
-        browsing_level = self.default_browsing_level
-
-        sort_by = "Newest" if sort_by == None else sort_by
-        period = "AllTime" if period == None else period
-
-        draft_only = True if section == "draft" else False
-
-        input_json = {
-            "json": {
-                "browsingLevel": browsing_level,
-                "period": period, 
-                "periodMode": "published",
-                "sort": sort_by,
-                "username": username,
-                "section": section,
-                "followed": False, 
-                "draftOnly": draft_only,
-                "pending": True, 
-                "include": ["cosmetics"],
-                "authed": True,
-            },
-        }
-
-        if cursor:
-            input_json["json"]["cursor"] = cursor
-
-        input_json = json.dumps(input_json, separators=(",", ":"))
-
-        params = {"input": input_json}
-
-        headers = {"Authorization": f"Bearer {self.api_key}"}
-
-        async with httpx.AsyncClient(headers=headers, timeout=httpx.Timeout(10)) as client:
-            req = client.build_request("GET", url, params=params)
-
-            r = await client.send(req)
-
-            jsondata = r.json().get("result", {}).get("data", {}).get("json", {})
-
-            for item in jsondata.get("items", []):
-                for image in item.get("images", []):
-                    image["fullUrl"] = civitai._create_image_url(image["url"])
-
-            return jsondata
-
-
-    def get_account_posts(self, username:str, sort_by:str=None, period:str=None, cursor:str=None, section: Literal["published","draft"]="published"):
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
-
-        if loop and loop.is_running():
-            return asyncio.ensure_future(self._async_get_account_posts(username, sort_by, period, cursor, section))
-        else:
-            return asyncio.run(self._async_get_account_posts(username, sort_by, period, cursor, section))
-
-
-    def get_user_images(self, username:str, sort_by:str=None, period:str=None, cursor:str=None):
+    def get_user_images(self, username:str=None, sort_by:str=None, period:str=None, cursor:str=None, section: Literal["published","draft"]="published"):
+        """
+        Fetch and query images for a specific user. If no user is specified, 
+        defaults to the account that the api key belongs to (if one was provided)
+        """
         url = self.base_trpc + "/image.getInfinite"
 
-        browsing_level = self.default_browsing_level
+        if not username:
+            username = self.account_settings["username"]
+
+        browsing_level = self.browsing_level
 
         sort_by = "Newest" if sort_by == None else sort_by
         period = "AllTime" if period == None else period
@@ -550,8 +607,8 @@ class civitai:
 
 
     @property
-    def default_browsing_level(self):
-        return self.__default_browsing_level
+    def browsing_level(self):
+        return self.__browsing_level
     
 
     def set_browsing_level(self, *args:_BrowsingLevel):
@@ -564,15 +621,17 @@ class civitai:
                 args = args[0]
             elif isinstance(args[0], int) or isinstance(args[0], str):
                 ...
-            self.__default_browsing_level = civitai._generate_browsing_level_bit_values(*args)
+            self.__browsing_level = civitai._generate_browsing_level_bit_values(*args)
         else:
             raise ValueError("Browsing level value required: ('PG', 'PG13', 'R', 'X', 'XXX')")
 
 
     def get_browsing_level_keys(self) -> list[str]:
-        return civitai._get_levels_from_bit_value(self.default_browsing_level)
+        return civitai._get_levels_from_bit_value(self.browsing_level)
 
-
+    
+    def auth_headers(self):
+        return {"Authorization": f"Bearer {self.api_key}"}
 
 
 class _ScriptTagParser(HTMLParser):
