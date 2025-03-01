@@ -16,6 +16,7 @@ from src.read import ImageData
 from src.prompt import parse_prompt_string
 from src.color import color
 from src.color import console_color as console
+from src.civitai_api import civitai, PostSort, ModelSort, Tag, Period, ModelType, CheckpointType, FileFormat, BaseModel
 from src.civitai_api import model_lookup
 from src.civitai_api import model_version_lookup
 from src.civitai_api import bulk_resource_lookup
@@ -84,6 +85,26 @@ def dev():
         "generation": generation_dict,
         "raw": img.raw_prompt
     }
+
+    return data
+
+@app.route("/civitai-dev")
+def civitai_dev():
+    api = civitai("ea9b28c663e35006b1dd51162058724b")
+
+    # data = api.account_settings
+    # data = api.get_generated_images()
+    # data = api.get_user("FanofAnime99")
+    # data = api.get_user("novowels")
+    # data = api.get_user_models("novowels", sort_by="Highest Rated")
+    # data = api.get_user_posts("FanofAnime99", sort_by=PostSort.NEWEST, section="draft")
+    # data = api.get_user_posts("novowels", sort_by=PostSort.NEWEST, period=Period.MONTH)
+    # data = api.get_user_images("FanofAnime99", sort_by=PostSort.NEWEST, section="draft")
+    # data = api.get_user_hidden_settings()
+    # data = api.get_account_settings()
+    # data = api.get_account_buzz()
+    data = api.get_account_posts("fanofanime99")
+
 
     return data
 
