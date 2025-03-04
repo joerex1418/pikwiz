@@ -3,6 +3,7 @@ import sys
 import json
 import pathlib
 
+import pyperclip
 from flask import request
 from flask.app import Flask
 from flask.json import jsonify
@@ -12,11 +13,12 @@ from flask_assets import Environment, Bundle
 project_root = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(project_root))
 
+from src.civitai_constants import BaseModel, CheckpointType, FileFormat, ModelSort, ModelType, Period, Sort, GenTag, Technique, Tool
 from src.read import ImageData
 from src.prompt import parse_prompt_string
 from src.color import color
 from src.color import console_color as console
-from src.civitai_api import civitai, PostSort, ModelSort, Tag, Period, ModelType, CheckpointType, FileFormat, BaseModel
+from src.civitai_api import civitai
 from src.civitai_api import model_lookup
 from src.civitai_api import model_version_lookup
 from src.civitai_api import bulk_resource_lookup
@@ -31,6 +33,15 @@ scss = Bundle('style.scss', filters='pyscss', output='style.css')
 assets.register('style',scss)
 
 # generate_resolution_json()
+
+# import rich
+# rich.print(Tool)
+# rich.print(Tool.A1111)
+# rich.print("id", Tool.A1111.id)
+# rich.print("name", Tool.A1111.name)
+# rich.print("value", Tool.A1111.value)
+# print()
+# rich.print("_member_map", Tool._member_map_)
 
 @app.context_processor
 def inject_dict_for_all_templates():
@@ -92,10 +103,13 @@ def dev():
 def civitai_dev():
     api = civitai("ea9b28c663e35006b1dd51162058724b")
     api.set_browsing_level(31)
-    # data = api.get_generation_queue()
+    # data = api.get_generation_queue(tags=[Tag.DISLIKED])
+    # data = api.get_all_generations(tags=[Tag.DISLIKED])
+    # data = api.get_images(techniques=["inpainting"])
     # data = api.get_user("FanofAnime99")
     # data = api.get_user("novowels")
     # data = api.get_user_models("novowels", sort_by="Highest Rated")
+    # data = api.get_model_alt(24779)
     # data = api.get_user_posts("FanofAnime99", sort_by=PostSort.NEWEST, section="draft")
     # data = api.get_user_posts("novowels", sort_by=PostSort.NEWEST, period=Period.MONTH)
     # data = api.get_user_images("FanofAnime99", sort_by=PostSort.NEWEST, section="draft")
@@ -109,15 +123,12 @@ def civitai_dev():
     # data = api.get_generation_queue()
     # data = api.get_all_generations()
     # data = api.get_image_generation_data(60630705)
-    data = api.get_model(24779)
-    alldata = {"get_model": data}
-    data = api.get_model_version(93208)
-    alldata["get_model_version"] = data
+    # data = api.get_model(24779)
+    # data = api.get_model_version(93208)
+    data = api.me()
+    # data = api.get_tools()
 
-    string = "urn:air:sd1:checkpoint:civitai:24779@93208"
-    # data = api.get_model_version_alt(93208)
-
-    return alldata
+    return data
 
 @app.route("/extract-prompt", methods=["POST"])
 def extract_prompt():

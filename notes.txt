@@ -1,0 +1,39 @@
+_value2member_map_
+{
+    'Checkpoint': <ModelType.CHECKPOINT: 'Checkpoint'>,
+    'TextualInversion': <ModelType.TEXTUALINVERSION: 'TextualInversion'>,
+    'Hypernetwork': <ModelType.HYPERNETWORK: 'Hypernetwork'>,
+    'AestheticGradient': <ModelType.AESTHETICGRADIENT: 'AestheticGradient'>,
+    'LORA': <ModelType.LORA: 'LORA'>,
+    'LoCon': <ModelType.LOCON: 'LoCon'>,
+    'DoRA': <ModelType.DORA: 'DoRA'>,
+    'Controlnet': <ModelType.CONTROLNET: 'Controlnet'>,
+    'Upscaler': <ModelType.UPSCALER: 'Upscaler'>,
+    'MotionModule': <ModelType.MOTIONMODULE: 'MotionModule'>,
+    'VAE': <ModelType.VAE: 'VAE'>,
+    'Poses': <ModelType.POSES: 'Poses'>,
+    'Wildcards': <ModelType.WILDCARDS: 'Wildcards'>,
+    'Workflows': <ModelType.WORKFLOWS: 'Workflows'>,
+    'Detection': <ModelType.DETECTION: 'Detection'>,
+    'Other': <ModelType.OTHER: 'Other'>
+}
+
+_member_map_
+{
+    'CHECKPOINT': <ModelType.CHECKPOINT: 'Checkpoint'>,
+    'TEXTUALINVERSION': <ModelType.TEXTUALINVERSION: 'TextualInversion'>,
+    'HYPERNETWORK': <ModelType.HYPERNETWORK: 'Hypernetwork'>,
+    'AESTHETICGRADIENT': <ModelType.AESTHETICGRADIENT: 'AestheticGradient'>,
+    'LORA': <ModelType.LORA: 'LORA'>,
+    'LOCON': <ModelType.LOCON: 'LoCon'>,
+    'DORA': <ModelType.DORA: 'DoRA'>,
+    'CONTROLNET': <ModelType.CONTROLNET: 'Controlnet'>,
+    'UPSCALER': <ModelType.UPSCALER: 'Upscaler'>,
+    'MOTIONMODULE': <ModelType.MOTIONMODULE: 'MotionModule'>,
+    'VAE': <ModelType.VAE: 'VAE'>,
+    'POSES': <ModelType.POSES: 'Poses'>,
+    'WILDCARDS': <ModelType.WILDCARDS: 'Wildcards'>,
+    'WORKFLOWS': <ModelType.WORKFLOWS: 'Workflows'>,
+    'DETECTION': <ModelType.DETECTION: 'Detection'>,
+    'OTHER': <ModelType.OTHER: 'Other'>
+}

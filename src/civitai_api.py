@@ -1,6 +1,6 @@
-import pathlib
+import re
 import json
-import asyncio
+import pathlib
 from html.parser import HTMLParser
 from typing import Literal
 from typing import Iterable
@@ -8,119 +8,22 @@ from typing import Iterable
 import httpx
 
 from . import util
+from .civitai_constants import GenTag
+from .civitai_constants import Tool
+from .civitai_constants import Technique
+from .civitai_constants import Sort
+from .civitai_constants import Period
+from .civitai_constants import ModelSort
+from .civitai_constants import ModelType
+from .civitai_constants import BaseModel
+from .civitai_constants import FileFormat
+from .civitai_constants import CheckpointType
 
 _BrowsingLevel = int
 
 
-
 def to_json(data):
     return json.dumps(data, separators=(",", ":"))
-
-
-class ModelSort:
-    NEWEST = "Newest"
-    OLDEST = "Oldest"
-    HIGHEST_RATED = "Highest Rated"
-    MOST_LIKED = "Most Liked"
-    MOST_COLLECTED = "Most Collected"
-    MOST_DOWNLOADED = "Most Downloaded"
-    MOST_DISCUSSED = "Most Discussed"
-    MOST_IMAGES = "Most Images"
-
-class PostSort:
-    NEWEST = "Newest"
-    OLDEST = "Oldest"
-    MOST_REACTIONS = "Most Reactions"
-    MOST_COMMENTS = "Most Comments"
-    MOST_COLLECTED = "Most Collected"
-
-class Tag:
-    GEN = "gen"
-    IMG = "img"
-    TXT2IMG = "txt2img"
-    LIKED = "feedback:liked"
-    DISLIKED = "feedback:disliked"
-    FAVORITED = "favorite"
-
-class Technique:
-    TXT2IMG = 1
-    IMG2IMG = 2
-    INPAINTING = 3
-    WORKFLOW = 4
-    VID2VID = 5
-    TXT2VID = 6
-    IMG2VID = 7
-    CONTROLNET = 8
-
-class Period:
-    DAY = "Day"
-    WEEK = "Week"
-    MONTH = "Month"
-    YEAR = "Year"
-    ALLTIME = "AllTime"
-
-class ModelType:
-    CHECKPOINT = "Checkpoint"
-    TEXTUALINVERSION = "TextualInversion"
-    HYPERNETWORK = "Hypernetwork"
-    AESTHETICGRADIENT = "AestheticGradient"
-    LORA = "LORA"
-    LOCON = "LoCon"
-    DORA = "DoRA"
-    CONTROLNET = "Controlnet"
-    UPSCALER = "Upscaler"
-    MOTIONMODULE = "MotionModule"
-    VAE = "VAE"
-    POSES = "Poses"
-    WILDCARDS = "Wildcards"
-    WORKFLOWS = "Workflows"
-    DETECTION = "Detection"
-    OTHER = "Other"
-
-class CheckpointType:
-    ALL = "all"
-    TRAINED = "Trained"
-    MERGE = "Merge"
-
-class FileFormat:
-    SAFETENSOR = "SafeTensor"
-    PICKLETENSOR = "PickleTensor"
-    GGUF = "GGUF"
-    DIFFUSERS = "Diffusers"
-    CORE_ML = "Core ML"
-    ONNX = "ONNX"
-
-class BaseModel:
-    SD_1_4 = "SD 1.4"
-    SD_1_5 = "SD 1.5"
-    SD_1_5_LCM = "SD 1.5 LCM"
-    SD_1_5_HYPER = "SD 1.5 Hyper"
-    SD_2_0 = "SD 2.0"
-    SD_2_1 = "SD 2.1"
-    SDXL_1_0 = "SDXL 1.0"
-    SD_3 = "SD 3"
-    SD_3_5 = "SD 3.5"
-    SD_3_5_MEDIUM = "SD 3.5 Medium"
-    SD_3_5_LARGE = "SD 3.5 Large"
-    SD_3_5_LARGE_TURBO = "SD 3.5 Large Turbo"
-    PONY = "Pony"
-    FLUX_1_S = "Flux.1 S"
-    FLUX_1_D = "Flux.1 D"
-    AURAFLOW = "AuraFlow"
-    SDXL_LIGHTNING = "SDXL Lightning"
-    SDXL_HYPER = "SDXL Hyper"
-    SVD = "SVD"
-    PIXART_A = "PixArt a"
-    PIXART_E = "PixArt E"
-    HUNYUAN_1 = "Hunyuan 1"
-    HUNYUAN_VIDEO = "Hunyuan Video"
-    LUMINA = "Lumina"
-    KOLORS = "Kolors"
-    ILLUSTRIOUS = "Illustrious"
-    MOCHI = "Mochi"
-    LTXV = "LTXV"
-    COGVIDEOX = "CogVideoX"
-    OTHER = "Other"
 
 
 class civitai:
@@ -143,14 +46,90 @@ class civitai:
             self.set_browsing_level(*default_browsing_level)
     
 
-    def get_generation_queue(self, cursor:str=None, asc:bool=False, tags:list[str]=None):
+    def me(self):
+        """
+        Get user id information (REQUIRES API KEY)
+        """
+        
+        with httpx.Client(headers=self.auth_headers()) as client:
+            r = client.get("https://civitai.com/api/v1/me")
+
+            jsondata = r.json()
+
+            return jsondata
+
+
+    def get_account_settings(self):
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+
+        with httpx.Client(headers=headers) as client:
+            req = client.build_request("GET", "https://civitai.com/user/account")
+            
+            r = client.send(req)
+
+            parser = _ScriptTagParser()
+            parser.feed(r.text)
+
+            jsondata = json.loads(parser.script_tag_text.strip())
+            page_props = jsondata.get("props", {}).get("pageProps", {})
+            userdata = page_props.get("session", {}).get("user", {})
+            settings = page_props.get("settings", {})
+
+            return userdata
+
+
+    def get_account_buzz(self):
+        url = self.base_trpc + "/buzz.getBuzzAccount"
+        
+        input_json = {
+            "json": {
+                "accountId": self.account_settings["id"],
+                "accountType": None,
+                "authed": True,
+            }
+        }
+        
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+
+        with httpx.Client(headers=headers) as client:
+            reqlist = []
+            for account_type in ("user", "generation"):
+                input_json["json"]["accountType"] = account_type
+                params = {"input": json.dumps(input_json, separators=(",", ":"))}
+                req = client.build_request("GET", url, params=params)
+                reqlist.append(req)
+            
+            responses = util.fetch_bulk(reqlist)
+            json_responses = []
+            for r in responses:
+                rjson = r.json().get("result", {}).get("data", {}).get("json", {})
+                if "generation" in r.url.__str__().lower():
+                    rjson["account_type"] = "generation"
+                else:
+                    rjson["account_type"] = "user"
+                
+                json_responses.append(rjson)
+                    
+            return json_responses
+            
+
+    def get_generation_queue(self, cursor:str=None, asc:bool=False, tags:list[GenTag]=None):
         url = self.base_trpc + "/orchestrator.queryGeneratedImages"
         
-        tags = [] if tags == None else tags
-        
+        tags_modified = []
+        if tags and len(tags) > 0:
+            for tag in tags:
+                if isinstance(tag, GenTag):
+                    tags_modified.append(tag.value)
+                elif tag in (GenTag._member_map_.keys()):
+                    tags_modified.append(GenTag._member_map_[tag].value)
+                elif tag in (GenTag._member_map_.values()):
+                    tags_modified.append(tag)
+
+
         query_data = {
             "ascending": asc,
-            "tags": tags,
+            "tags": tags_modified,
             "authed": True,
         }
 
@@ -174,17 +153,25 @@ class civitai:
             return jsondata
 
 
-    def get_all_generations(self):
+    def get_all_generations(self, asc:bool=False, tags:list[GenTag]=None):
         url = self.base_trpc + "/orchestrator.queryGeneratedImages"
         
-
         headers = self.auth_headers()
 
+        tags_modified = []
+        if tags and len(tags) > 0:
+            for tag in tags:
+                if isinstance(tag, GenTag):
+                    tags_modified.append(tag.value)
+                elif tag in (GenTag._member_map_.keys()):
+                    tags_modified.append(GenTag._member_map_[tag].value)
+                elif tag in (GenTag._member_map_.values()):
+                    tags_modified.append(tag)
         
-        def get_queue_with_cursor(client: httpx.Client, cursor:str=None):
+        def get_queue_with_cursor(client: httpx.Client, cursor:str=None, asc:bool=False, tags:list[GenTag]=None):
             _input_json = {
-                "ascending": False,
-                "tags": [],
+                "ascending": asc,
+                "tags": tags,
                 "authed": True
             }
             if cursor:
@@ -204,7 +191,7 @@ class civitai:
         all_items = []
         
         with httpx.Client(headers=headers) as client:
-            data = get_queue_with_cursor(client, cursor=None)
+            data = get_queue_with_cursor(client, cursor=None, asc=asc, tags=tags_modified)
             all_items.extend(data.get("items", []))
             cursor = data.get("nextCursor")
             while cursor != None:
@@ -218,6 +205,7 @@ class civitai:
 
     def get_image_generation_data(self, image_id:int, **kwargs):
         """
+        Get metadata for a published generated image
         """
         
         url = self.base_trpc + "/image.getGenerationData"
@@ -240,11 +228,11 @@ class civitai:
 
     def get_images(
             self, 
-            cursor=None, 
-            sort_by=None,
-            period=None,
+            cursor=None,
+            sort_by:Sort=None,
+            period:Period=None,
             types:list[Literal["image", "video"]]=None,
-            tools:list=None,
+            tools:list[Tool]=None,
             base_models:list=None, 
             made_onsite:bool=None, 
             remixes_only:bool=None, 
@@ -260,8 +248,60 @@ class civitai:
         
         url = self.base_trpc + "/image.getInfinite"
 
-        sort_by = "Newest" if sort_by == None else sort_by
-        period = "AllTime" if period == None else period
+
+        if sort_by:
+            if isinstance(sort_by, Sort):
+                sort_by = sort_by.value
+            elif sort_by in (Sort._member_map_.keys()):
+                sort_by = Sort._member_map_[sort_by].value
+            elif sort_by in Sort._member_map_.values():
+                pass
+            else:
+                sort_by = Sort.NEWEST.value
+        else:
+            sort_by = Sort.NEWEST.value
+
+        if period:
+            if isinstance(period, Period):
+                period = period.value
+            elif period in (Period._member_map_.keys()):
+                period = Period._member_map_[sort_by].value
+            elif period in Period._member_map_.values():
+                pass
+            else:
+                period = Period.ALLTIME.value
+        else:
+            period = Period.ALLTIME.value
+
+        tools_modified = []
+        if tools and len(tools) > 0:
+            for tool in tools:
+                if isinstance(tool, Tool):
+                    tools_modified.append(tool.id)
+                elif tool in Tool._member_map_.keys():
+                    tools_modified.append(Tool._member_map_[tool].id)
+                elif tool in [x.value[0] for x in Tool._member_map_.values()]:
+                    for t in Tool._member_map_.values():
+                        if t.value[0] == tool:
+                            tools_modified.append(t.value[1])
+                            break
+                elif tool in [x.value[1] for x in Tool._member_map_.values()]:
+                    tools_modified.append(tool)
+
+        techniques_modified = []
+        if techniques and len(techniques) > 0:
+            for technique in techniques:
+                if isinstance(technique, Technique):
+                    techniques_modified.append(technique.id)
+                elif technique in Technique._member_map_.keys():
+                    techniques_modified.append(Technique._member_map_[technique].id)
+                elif technique in [x.value[0] for x in Technique._member_map_.values()]:
+                    for t in Technique._member_map_.values():
+                        if t.value[0] == technique:
+                            techniques_modified.append(t.value[1])
+                            break
+                elif technique in [x.value[1] for x in Technique._member_map_.values()]:
+                    techniques_modified.append(technique)
 
         query_data = {
             "period": period, 
@@ -290,6 +330,9 @@ class civitai:
         if cursor:
             query_data["cursor"] = cursor
 
+        if len(tools_modified) > 0:
+            query_data["tools"] = tools_modified
+
         if base_models:
             if isinstance(base_models, str):
                 base_models = [base_models]
@@ -302,23 +345,8 @@ class civitai:
             query_data["remixesOnly"] = remixes_only
             query_data["nonRemixesOnly"] = not remixes_only
         
-        if techniques:
-            technique_map = {
-                "txt2img": 1, 
-                "img2img": 2, 
-                "inpainting": 3, 
-                "workflow": 4, 
-                "vid2vid": 5, 
-                "txt2vid": 6, 
-                "img2vid": 7, 
-                "controlnet": 8
-            }
-            query_data["techniques"] = []
-            for t in techniques:
-                if isinstance(t, int):
-                    query_data["techniques"].append(t)
-                elif isinstance(t, str):
-                    query_data["techniques"].append(technique_map[t.lower()])
+        if len(techniques_modified) > 0:
+            query_data["techniques"] = techniques_modified
 
         if has_metadata != None:
             query_data["withMeta"] = has_metadata
@@ -368,14 +396,39 @@ class civitai:
             return jsondata
 
 
-    def get_user_models(self, username:str, sort_by:str=None, period:str=None, early_access:bool=None, onsite_generation:bool=None, made_onsite:bool=None, cursor:str=None):
+    def get_user_models(self, username:str, sort_by:ModelSort=None, period:Period=None, early_access:bool=None, onsite_generation:bool=None, made_onsite:bool=None, cursor:str=None):
         url = self.base_trpc + "/model.getAll"
 
-        sort_by = "Newest" if sort_by == None else sort_by
-        period = "AllTime" if period == None else period
         early_access = False if early_access == None else early_access
         onsite_generation = False if early_access == None else onsite_generation
         made_onsite = False if early_access == None else made_onsite
+
+
+        if sort_by:
+            if isinstance(sort_by, ModelSort):
+                sort_by = sort_by.value
+            elif sort_by in (ModelSort._member_map_.keys()):
+                sort_by = ModelSort._member_map_[sort_by].value
+            elif sort_by in ModelSort._member_map_.values():
+                pass
+            else:
+                sort_by = ModelSort.NEWEST.value
+        else:
+            sort_by = ModelSort.NEWEST.value
+
+
+        if period:
+            if isinstance(period, Period):
+                period = period.value
+            elif period in (Period._member_map_.keys()):
+                period = Period._member_map_[sort_by].value
+            elif period in Period._member_map_.values():
+                pass
+            else:
+                period = Period.ALLTIME.value
+        else:
+            period = Period.ALLTIME.value
+
 
         input_json = {
             "json": {
@@ -469,8 +522,8 @@ class civitai:
         """
         url = self.base_trpc + "/image.getInfinite"
 
-        if not username:
-            username = self.account_settings["username"]
+        if self.username and not username:
+            username = self.username
 
         browsing_level = self.browsing_level
 
@@ -536,60 +589,6 @@ class civitai:
             return jsondata
 
 
-    def get_account_settings(self):
-        headers = {"Authorization": f"Bearer {self.api_key}"}
-
-        with httpx.Client(headers=headers) as client:
-            req = client.build_request("GET", "https://civitai.com/user/account")
-            
-            r = client.send(req)
-
-            parser = _ScriptTagParser()
-            parser.feed(r.text)
-
-            jsondata = json.loads(parser.script_tag_text.strip())
-            page_props = jsondata.get("props", {}).get("pageProps", {})
-            userdata = page_props.get("session", {}).get("user", {})
-            settings = page_props.get("settings", {})
-
-            return userdata
-
-
-    def get_account_buzz(self):
-        url = self.base_trpc + "/buzz.getBuzzAccount"
-        
-        input_json = {
-            "json": {
-                "accountId": self.account_settings["id"],
-                "accountType": None,
-                "authed": True,
-            }
-        }
-        
-        headers = {"Authorization": f"Bearer {self.api_key}"}
-
-        with httpx.Client(headers=headers) as client:
-            reqlist = []
-            for account_type in ("user", "generation"):
-                input_json["json"]["accountType"] = account_type
-                params = {"input": json.dumps(input_json, separators=(",", ":"))}
-                req = client.build_request("GET", url, params=params)
-                reqlist.append(req)
-            
-            responses = util.fetch_bulk(reqlist)
-            json_responses = []
-            for r in responses:
-                rjson = r.json().get("result", {}).get("data", {}).get("json", {})
-                if "generation" in r.url.__str__().lower():
-                    rjson["account_type"] = "generation"
-                else:
-                    rjson["account_type"] = "user"
-                
-                json_responses.append(rjson)
-                    
-            return json_responses
-            
-
     def get_post(self, post_id:str):
         url = f"https://civitai.com/api/v1/images?postId={post_id}"
         
@@ -632,38 +631,49 @@ class civitai:
     def get_model(self, model_id):
         url = f"https://civitai.com/api/v1/models/{model_id}"
         
-        r = httpx.get(url)
-        
-        jsondata = r.json()
-        
-        return jsondata
+        with httpx.Client(headers=self.auth_headers()) as client:
+            r = client.get(url)
+            
+            jsondata = r.json()
+
+            return jsondata
     
 
     def get_model_version(self, model_version_id):
         url = f"https://civitai.com/api/v1/model-versions/{model_version_id}"
         
-        r = httpx.get(url)
-        
-        jsondata = r.json()
+        with httpx.Client(headers=self.auth_headers()) as client:
+            r = client.get(url)
+            
+            jsondata = r.json()
 
-        return jsondata
+            return jsondata
     
 
-    # def get_model_version_alt(self, model_version_id):
-    #     query_data = {"id": int(model_version_id), "authed": True}
+    def get_model_version_by_hash(self, hash_value):
+        url = f"https://civitai.com/api/v1/model-versions/by-hash/{hash_value}"
         
-    #     input_json = to_json({"json": query_data})
-        
-    #     params = {"input": input_json}
-
-    #     with httpx.Client() as client:
-    #         url = self.base_trpc + "/modelVersion.getById"
-
-    #         r = client.get(url, params=params)
+        with httpx.Client(headers=self.auth_headers()) as client:
+            r = client.get(url)
             
-    #         jsondata = r.json()
+            jsondata = r.json()
 
-    #     return jsondata
+            return jsondata
+
+    
+    def get_model_alt(self, model_id):
+        with httpx.Client(headers=self.auth_headers()) as client:
+            query_data = {"id": int(model_id), "authed": True}
+            
+            params = {"input": to_json({"json": query_data})}
+            
+            url = self.base_trpc + "/model.getById"
+            
+            r = client.get(url, params=params)
+
+            jsondata = r.json()
+
+            return jsondata
 
 
     @staticmethod
@@ -718,6 +728,15 @@ class civitai:
         
         return result
 
+    @property
+    def user_id(self):
+        if self.account_settings:
+            return self.account_settings["id"]
+        
+    @property
+    def username(self):
+        if self.account_settings:
+            return self.account_settings["username"]
 
     @property
     def browsing_level(self):
@@ -746,7 +765,50 @@ class civitai:
     def auth_headers(self):
         return {"Authorization": f"Bearer {self.api_key}"}
 
+    
+    @staticmethod
+    def parse_air(string:str):
+        m = re.search(
+            r"^(?:urn:)?(?:air:)?(?:([a-zA-Z0-9_\-\/]+):)?(?:([a-zA-Z0-9_\-\/]+):)?([a-zA-Z0-9_\-\/]+):([a-zA-Z0-9_\-\/]+)(?:@([a-zA-Z0-9_\-]+))?(?:\.([a-zA-Z0-9_\-]+))?$", 
+            string
+        )
 
+        if m:
+            airdict = {"ecosystem": None, "type": None, "source": None, "id": None, "version": None, "format": None}
+            groups = m.groups()
+            
+            import rich
+            rich.print(len(groups))
+            rich.print(groups)
+            if len(groups) == 6:
+                airdict["ecosystem"], airdict["type"], airdict["source"], airdict["id"], airdict["version"], airdict["format"] = m.groups()
+            elif len(groups) == 5:
+                airdict["ecosystem"], airdict["type"], airdict["source"], airdict["id"], airdict["version"] = m.groups()
+            
+            return airdict
+
+
+    @staticmethod
+    def to_air_string(_ecosystem:str=None, _type:str=None, _source:str=None, _id=None, _version=None, _format=None) -> str:
+        if isinstance(_ecosystem, dict):
+            data = _ecosystem
+            _ecosystem = data["ecosystem"]
+            _type = data["type"]
+            _source = data["source"]
+            _id = data["id"]
+            _version = data["version"]
+            _format = data["format"]
+
+        string = "urn:air:{}:{}:{}:{}@{}".format(
+            _ecosystem, _type, _source, _id, _version
+        )
+
+        if _format:
+            string += f".{_format}"
+        
+        return string
+
+        
 
 
 class _ScriptTagParser(HTMLParser):
