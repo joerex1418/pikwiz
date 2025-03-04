@@ -1,3 +1,4 @@
+import pathlib
 import json
 import asyncio
 from html.parser import HTMLParser
@@ -5,7 +6,6 @@ from typing import Literal
 from typing import Iterable
 
 import httpx
-import rich.logging
 
 from . import util
 
@@ -148,22 +148,20 @@ class civitai:
         
         tags = [] if tags == None else tags
         
-        input_json = {
-            "json": {
-                "ascending": asc,
-                "tags": tags,
-                "authed": True
-            }
+        query_data = {
+            "ascending": asc,
+            "tags": tags,
+            "authed": True,
         }
 
         if cursor:
-            input_json["json"]["cursor"] = cursor
+            query_data["json"]["cursor"] = cursor
 
-        input_json = json.dumps(input_json, separators=(",", ":"))
+        input_json = to_json({"json": query_data})
 
         params = {"input": input_json}
 
-        headers = {"Authorization": f"Bearer {self.api_key}"}
+        headers = self.auth_headers()
 
         with httpx.Client(headers=headers) as client:
             req = client.build_request("GET", url, params=params)
@@ -171,8 +169,51 @@ class civitai:
             r = client.send(req)
 
             jsondata = r.json()
+            jsondata = jsondata.get("result", {}).get("data", {}).get("json", {})
 
             return jsondata
+
+
+    def get_all_generations(self):
+        url = self.base_trpc + "/orchestrator.queryGeneratedImages"
+        
+
+        headers = self.auth_headers()
+
+        
+        def get_queue_with_cursor(client: httpx.Client, cursor:str=None):
+            _input_json = {
+                "ascending": False,
+                "tags": [],
+                "authed": True
+            }
+            if cursor:
+                _input_json["cursor"] = cursor
+            
+            _params = {"input": to_json({"json": _input_json})}
+            
+            req = client.build_request("GET", url, params=_params)
+            
+            r = client.send(req)
+
+            jsondata = r.json()
+            jsondata = jsondata.get("result", {}).get("data", {}).get("json", {})
+
+            return jsondata
+
+        all_items = []
+        
+        with httpx.Client(headers=headers) as client:
+            data = get_queue_with_cursor(client, cursor=None)
+            all_items.extend(data.get("items", []))
+            cursor = data.get("nextCursor")
+            while cursor != None:
+                data = get_queue_with_cursor(client, cursor)
+                all_items.extend(data.get("items", []))
+                cursor = data.get("nextCursor")
+                print(cursor)
+        
+        return all_items
 
 
     def get_image_generation_data(self, image_id:int, **kwargs):
@@ -262,7 +303,16 @@ class civitai:
             query_data["nonRemixesOnly"] = not remixes_only
         
         if techniques:
-            technique_map = {"txt2img": 1, "img2img": 2, "inpainting": 3, "workflow": 4, "vid2vid": 5, "txt2vid": 6, "img2vid": 7, "controlnet": 8}
+            technique_map = {
+                "txt2img": 1, 
+                "img2img": 2, 
+                "inpainting": 3, 
+                "workflow": 4, 
+                "vid2vid": 5, 
+                "txt2vid": 6, 
+                "img2vid": 7, 
+                "controlnet": 8
+            }
             query_data["techniques"] = []
             for t in techniques:
                 if isinstance(t, int):
@@ -428,29 +478,27 @@ class civitai:
         period = "AllTime" if period == None else period
 
         input_json = {
-            "json": {
-                "period": period,
-                "sort": sort_by,
-                "types":["image"],
-                "withMeta": False, 
-                "fromPlatform": False, 
-                "hideAutoResources": False, 
-                "hideManualResources": False, 
-                "notPublished": False, 
-                "scheduled": False, 
-                "nonRemixesOnly": False, 
-                "username": username, 
-                "useIndex": True, 
-                "browsingLevel": browsing_level, 
-                "include": ["cosmetics"], 
-                "authed": True
-            }
+            "period": period,
+            "sort": sort_by,
+            "types":["image"],
+            "withMeta": False, 
+            "fromPlatform": False, 
+            "hideAutoResources": False, 
+            "hideManualResources": False, 
+            "notPublished": False, 
+            "scheduled": False, 
+            "nonRemixesOnly": False, 
+            "username": username, 
+            "useIndex": True, 
+            "browsingLevel": browsing_level, 
+            "include": ["cosmetics"], 
+            "authed": True,
         }
 
         if cursor:
             input_json["json"]["cursor"] = cursor
 
-        input_json = json.dumps(input_json, separators=(",", ":"))
+        input_json = to_json({"json": input_json})
 
         params = {"input": input_json}
 
@@ -553,6 +601,71 @@ class civitai:
             return jsondata
 
 
+    def get_tools(self, from_api:bool=False):
+        """Get list of all tools"""
+        if from_api == True:
+            url = self.base_trpc + "/tool.getAll"
+
+            query_data = {
+                "include": ["unlisted"],
+                "sort": "AZ",
+                # "cursor": None,
+                "authed": True
+            }
+
+            input_json = to_json({"json": query_data})
+            params = {"input": input_json}
+
+            with httpx.Client() as client:
+                req = client.build_request("GET", url, params=params)
+
+                r = client.send(req)
+                
+                jsondata = r.json().get("result", {}).get("data", {}).get("json", {}).get("items", [])
+
+                return jsondata
+        else:
+            with pathlib.Path(__file__).parent.joinpath("tools.json").open("r") as fp:
+                return json.load(fp)
+
+
+    def get_model(self, model_id):
+        url = f"https://civitai.com/api/v1/models/{model_id}"
+        
+        r = httpx.get(url)
+        
+        jsondata = r.json()
+        
+        return jsondata
+    
+
+    def get_model_version(self, model_version_id):
+        url = f"https://civitai.com/api/v1/model-versions/{model_version_id}"
+        
+        r = httpx.get(url)
+        
+        jsondata = r.json()
+
+        return jsondata
+    
+
+    # def get_model_version_alt(self, model_version_id):
+    #     query_data = {"id": int(model_version_id), "authed": True}
+        
+    #     input_json = to_json({"json": query_data})
+        
+    #     params = {"input": input_json}
+
+    #     with httpx.Client() as client:
+    #         url = self.base_trpc + "/modelVersion.getById"
+
+    #         r = client.get(url, params=params)
+            
+    #         jsondata = r.json()
+
+    #     return jsondata
+
+
     @staticmethod
     def _create_image_url(image_uuid:str, width:int=None):
         if width == None:
@@ -634,6 +747,8 @@ class civitai:
         return {"Authorization": f"Bearer {self.api_key}"}
 
 
+
+
 class _ScriptTagParser(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -659,41 +774,30 @@ class _ScriptTagParser(HTMLParser):
 
 
 
-async def _fetch_one(client:httpx.AsyncClient, url:str):
-    r = await client.get(url)
-    return r
-
-async def _fetch_all(urllist:list, **kwargs):
-    async with httpx.AsyncClient() as session:
-        tasks = (asyncio.create_task(_fetch_one(session, url)) for url in urllist)
-        responses = await asyncio.gather(*tasks)
-        return responses
-
-def fetch_all(urllist:list, **kwargs):
-    if isinstance(urllist,str):
-        urllist = [urllist]
-    return asyncio.run(_fetch_all(urllist, **kwargs))
-
-
 
 def model_lookup(model_id):
     url = f"https://civitai.com/api/v1/models/{model_id}"
     r = httpx.get(url)
-    return r.json()
+    jsondata = r.json()
+    return jsondata
+
 
 def model_version_lookup(model_version_id):
     url = f"https://civitai.com/api/v1/model-versions/{model_version_id}"
     r = httpx.get(url)
-    return r.json()
+    jsondata = r.json()
+    return jsondata
 
 
 def bulk_resource_lookup(model_version_ids:list):
-    urllist = []
+    reqlist = []
     
     for mvid in model_version_ids:
-        urllist.append(f"https://civitai.com/api/v1/model-versions/{mvid}")
+        url = f"https://civitai.com/api/v1/model-versions/{mvid}"
+        req = httpx.Request("GET", url)
+        reqlist.append(req)
 
-    responses = fetch_all(urllist)
+    responses = util.fetch_bulk(reqlist)
 
     json_responses = [r.json() for r in responses]
 

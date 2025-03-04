@@ -6,8 +6,6 @@ import httpx
 from PIL import Image
 from PIL.ExifTags import TAGS
 
-from .civitai_api import fetch_all
-
 
 
 class ImageData:

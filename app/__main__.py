@@ -103,11 +103,21 @@ def civitai_dev():
     # data = api.get_account_settings()
     # data = api.get_account_buzz()
     # data = api.get_user_images(sort_by=PostSort.NEWEST, section="draft")
-    data = api.get_images()
-    # data = api.get_image_generation_data(60630705)
+    # data = api.get_images()
     # data = api.account_settings
+    # data = api.get_tools()
+    # data = api.get_generation_queue()
+    # data = api.get_all_generations()
+    # data = api.get_image_generation_data(60630705)
+    data = api.get_model(24779)
+    alldata = {"get_model": data}
+    data = api.get_model_version(93208)
+    alldata["get_model_version"] = data
 
-    return data
+    string = "urn:air:sd1:checkpoint:civitai:24779@93208"
+    # data = api.get_model_version_alt(93208)
+
+    return alldata
 
 @app.route("/extract-prompt", methods=["POST"])
 def extract_prompt():
