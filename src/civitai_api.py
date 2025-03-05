@@ -30,21 +30,27 @@ class civitai:
     base_trpc = "https://civitai.com/api/trpc"
     _public_image_key = "xG1nkqKTMzGDvpLrqFT7WA"
 
-    def __init__(self, api_key:str=None, default_browsing_level:list[_BrowsingLevel]=None):
+    def __init__(self, api_key:str=None, browsing_level:list[_BrowsingLevel]=None, **kwargs):
         self.api_key = api_key
         
-        self.account_settings = None
-        if self.api_key:
+        self.account_settings = kwargs.get("account_settings")
+
+        if self.api_key and not self.account_settings:
             self.account_settings: dict | None = self.get_account_settings()
 
-        if default_browsing_level == None:
+        if browsing_level == None:
             if self.account_settings:
                 self.set_browsing_level(self.account_settings["browsingLevel"])
             else:
                 self.set_browsing_level("PG")
         else:
-            self.set_browsing_level(*default_browsing_level)
+            self.set_browsing_level(*browsing_level)
     
+
+    @classmethod
+    def preload(cls, api_key:str, browsing_level:int, account_settings:dict):
+        isinstance = cls(api_key, browsing_level, account_settings=account_settings)
+
 
     def me(self):
         """
