@@ -1,10 +1,14 @@
 import re
 import json
 import pathlib
+import inspect
 import asyncio
 
 import httpx
 
+# ---------------------------- #
+# Logging
+# ---------------------------- #
 
 class _color:
     __slots__ = tuple()
@@ -66,6 +70,9 @@ def log_response(r:httpx.Response):
         urlhost = color.dim(r.url.scheme + r.url.host),
         urlpath = color.magenta(r.url.path)
     ))
+
+def get_line_number():
+    return inspect.currentframe().f_back.f_lineno
 
 
 # ---------------------------- #

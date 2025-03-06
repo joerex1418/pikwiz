@@ -24,6 +24,7 @@ from src.civitai_api import model_version_lookup
 from src.civitai_api import bulk_resource_lookup
 from src.util import RESOLUTIONS
 from src.util import generate_resolution_json, load_resolution_json
+from src.util import get_line_number
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -33,15 +34,6 @@ scss = Bundle('style.scss', filters='pyscss', output='style.css')
 assets.register('style',scss)
 
 # generate_resolution_json()
-
-# import rich
-# rich.print(Tool)
-# rich.print(Tool.A1111)
-# rich.print("id", Tool.A1111.id)
-# rich.print("name", Tool.A1111.name)
-# rich.print("value", Tool.A1111.value)
-# print()
-# rich.print("_member_map", Tool._member_map_)
 
 @app.context_processor
 def inject_dict_for_all_templates():
