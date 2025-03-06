@@ -1,14 +1,84 @@
 from enum import Enum
 
 
-class Scheduler(Enum):
-    def __init__(self, _name):
-        self._name = _name
-    
-    @property
-    def name(self) -> str:
-        return self._name
-    
+ASPECT_RATIOS = {
+    "SD1": {
+        "square": "512x512",
+        "landscape": "768x512",
+        "portrait": "512x768"
+    },
+    "SDXL": {
+        "square": "1024x1024",
+        "landscape": "1216x832",
+        "portrait": "832x1216"
+    },
+    "Pony": {
+        "square": "1024x1024",
+        "landscape": "1216x832",
+        "portrait": "832x1216"
+    },
+    "Illustrious": {
+        "square": "1024x1024",
+        "landscape": "1216x832",
+        "portrait": "832x1216"
+    },
+    "NoobAI": {
+        "square": "1024x1024",
+        "landscape": "1216x832",
+        "portrait": "832x1216"
+    },
+    "Flux1": {
+        "square": "1024x1024",
+        "landscape": "1216x832",
+        "portrait": "832x1216"
+    },
+    "SD3": {
+        "square": "1024x1024",
+        "landscape": "1216x832",
+        "portrait": "832x1216"
+    },
+    "SD3_5M": {
+        "square": "1024x1024",
+        "landscape": "1216x832",
+        "portrait": "832x1216"
+    },
+    "Other": {}
+}
+
+
+
+SAMPLER_MAP = {
+    "Euler a": {"sampler_civitai": "EulerA", "sampler_comfy": "euler_ancestral", "scheduler": "normal"},
+    "Euler": {"sampler_civitai": "Euler", "sampler_comfy": "euler", "scheduler": "normal"},
+    "LMS": {"sampler_civitai": "LMS", "sampler_comfy": "lms", "scheduler": "normal"},
+    "Heun": {"sampler_civitai": "Heun", "sampler_comfy": "heun", "scheduler": "normal"},
+    "DPM2": {"sampler_civitai": "DPM2", "sampler_comfy": "dpmpp_2", "scheduler": "normal"},
+    "DPM2 a": {"sampler_civitai": "DPM2A", "sampler_comfy": "dpmpp_2_ancestral", "scheduler": "normal"},
+    "DPM++ 2S a": {"sampler_civitai": "DPM2SA", "sampler_comfy": "dpmpp_2s_ancestral", "scheduler": "normal"},
+    "DPM++ 2M": {"sampler_civitai": "DPM2M", "sampler_comfy": "dpmpp_2m", "scheduler": "normal"},
+    "DPM++ 2M SDE": {"sampler_civitai": "DPM2MSDE", "sampler_comfy": "dpmpp_2m_sde", "scheduler": "normal"},
+    "DPM++ SDE": {"sampler_civitai": "DPMSDE", "sampler_comfy": "dpmpp_sde", "scheduler": "normal"},
+    "DPM fast": {"sampler_civitai": "DPMFast", "sampler_comfy": "dpm_fast", "scheduler": "normal"},
+    "DPM adaptive": {"sampler_civitai": "DPMAdaptive", "sampler_comfy": "dpm_adaptive", "scheduler": "normal"},
+    "LMS Karras": {"sampler_civitai": "LMSKarras", "sampler_comfy": "lms", "scheduler": "karras"},
+    "DPM2 Karras": {"sampler_civitai": "DPM2Karras", "sampler_comfy": "dpm_2", "scheduler": "karras"},
+    "DPM2 a Karras": {"sampler_civitai": "DPM2AKarras", "sampler_comfy": "dpm_2_ancestral", "scheduler": "karras"},
+    "DPM++ 2S a Karras": {"sampler_civitai": "DPM2SAKarras", "sampler_comfy": "dpmpp_2s_ancestral", "scheduler": "karras"},
+    "DPM++ 2M Karras": {"sampler_civitai": "DPM2MKarras", "sampler_comfy": "dpmpp_2m", "scheduler": "karras"},
+    "DPM++ 2M SDE Karras": {"sampler_civitai": "DPM2MSDEKarras", "sampler_comfy": "dpmpp_2m_sde", "scheduler": "karras"},
+    "DPM++ SDE Karras": {"sampler_civitai": "DPMSDEKarras", "sampler_comfy": "dpmpp_sde", "scheduler": "karras"},
+    "DPM++ 3M SDE": {"sampler_civitai": "DPM3MSDE", "sampler_comfy": "dpmpp_3m_sde", "scheduler": "normal"},
+    "DPM++ 3M SDE Karras": {"sampler_civitai": "DPM3MSDEKarras", "sampler_comfy": "dpmpp_3m_sde", "scheduler": "karras"},
+    "DPM++ 3M SDE Exponential": {"sampler_civitai": "DPM3MSDEExponential", "sampler_comfy": "dpmpp_3m_sde", "scheduler": "exponential"},
+    "DDIM": {"sampler_civitai": "DDIM", "sampler_comfy": "ddim", "scheduler": "normal"},
+    "PLMS": {"sampler_civitai": "PLMS", "sampler_comfy": "plms", "scheduler": "normal"},
+    "UniPC": {"sampler_civitai": "UniPC", "sampler_comfy": "uni_pc", "scheduler": "normal"},
+    "LCM": {"sampler_civitai": "LCM", "sampler_comfy": "lcm", "scheduler": "normal"},
+    "undefined": {"sampler_civitai": "undefined", "sampler_comfy": "dpmpp_2m", "scheduler": "karras"},
+}
+
+
+class Sampler(Enum):
     EULERA = "EulerA"
     EULER = "Euler"
     LMS = "LMS"
@@ -23,26 +93,37 @@ class Scheduler(Enum):
     LMSKARRAS = "LMSKarras"
     DPM2KARRAS = "DPM2Karras"
     DPM2AKARRAS = "DPM2AKarras"
-    DPM2SAKARRAS = "DPM2SAKarras"
     DPM2MKARRAS = "DPM2MKarras"
     DPMSDEKARRAS = "DPMSDEKarras"
     DDIM = "DDIM"
     PLMS = "PLMS"
     UNIPC = "UniPC"
-    UNDEFINED = "Undefined"
+    UNDEFINED = "undefined"
     LCM = "LCM"
-    DDPM = "DDPM"
-    DEIS = "DEIS"
 
+    @property
+    def civitai(self) -> str:
+        """Returns the civitai code for the sampler."""
+        return self.value
+
+    @property
+    def comfy(self) -> str:
+        """Returns the comfy code for the sampler."""
+        for key, value in SAMPLER_MAP.items():
+            if self.value == value["sampler_civitai"]:
+                return value["sampler_comfy"]
+        return "undefined"
+
+    @property
+    def scheduler(self) -> str:
+        """Returns the scheduler type for the sampler."""
+        for key, value in SAMPLER_MAP.items():
+            if self.value == value["sampler_civitai"]:
+                return value["scheduler"]
+        return "normal"
+    
 
 class ModelSort(Enum):
-    def __init__(self, _name):
-        self._name = _name
-    
-    @property
-    def name(self) -> str:
-        return self._name
-    
     NEWEST = "Newest"
     OLDEST = "Oldest"
     HIGHEST_RATED = "Highest Rated"
@@ -52,8 +133,6 @@ class ModelSort(Enum):
     MOST_DISCUSSED = "Most Discussed"
     MOST_IMAGES = "Most Images"
 
-
-class Sort(Enum):
     def __init__(self, _name):
         self._name = _name
     
@@ -61,26 +140,23 @@ class Sort(Enum):
     def name(self) -> str:
         return self._name
     
+
+class Sort(Enum):
     NEWEST = "Newest"
     OLDEST = "Oldest"
     MOST_REACTIONS = "Most Reactions"
     MOST_COMMENTS = "Most Comments"
     MOST_COLLECTED = "Most Collected"
 
-
-class Tool(Enum):
-    def __init__(self, _name, _id):
+    def __init__(self, _name):
         self._name = _name
-        self._id = _id
     
     @property
     def name(self) -> str:
         return self._name
     
-    @property
-    def id(self) -> int:
-        return self._id
 
+class Tool(Enum):
     ZEBRA10 = ("10zebra", 164)
     A1111 = ("A1111", 84)
     ABLETON = ("Ableton", 301)
@@ -298,8 +374,28 @@ class Tool(Enum):
     ZEBRACAT = ("Zebracat", 256)
     ZERO1CINE = ("zero1cine", 268)
 
+    def __init__(self, _name, _id):
+        self._name = _name
+        self._id = _id
+    
+    @property
+    def name(self) -> str:
+        return self._name
+    
+    @property
+    def id(self) -> int:
+        return self._id
+
+
 
 class GenTag(Enum):
+    GEN = "gen"
+    IMG = "img"
+    TXT2IMG = "txt2img"
+    LIKED = "feedback:liked"
+    DISLIKED = "feedback:disliked"
+    FAVORITED = "favorite"
+    
     def __init__(self, _name):
         self._name = _name
     
@@ -307,12 +403,6 @@ class GenTag(Enum):
     def name(self) -> str:
         return self._name
     
-    GEN = "gen"
-    IMG = "img"
-    TXT2IMG = "txt2img"
-    LIKED = "feedback:liked"
-    DISLIKED = "feedback:disliked"
-    FAVORITED = "favorite"
 
 
 class Technique(Enum):

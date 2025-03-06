@@ -251,6 +251,7 @@ def parse_prompt_string(raw_prompt_string):
                             resource["model_filename"] = f["name"]
                             resource["model_filetype"] = f["metadata"]["format"]
                             resource["model_fileext"] = "".join(Path(resource["model_filename"]).suffix)
+                            resource["model_hashes"] = f["hashes"]
                 
                 # --------------------------------------------- #
                 # * Get Model Name if not already populated
@@ -295,6 +296,7 @@ def parse_prompt_string(raw_prompt_string):
     }
     
     return generation_data
+
 
 def parse_basic(raw_prompt_string):
     match = re.search(r"(?P<prompts>.*?)(?P<settings>steps:.*)", raw_prompt_string, re.DOTALL | re.IGNORECASE)

@@ -293,7 +293,7 @@ input, textarea {
                             // width: 45px;
                         }
                         .detail-value {
-                            width: 55px;
+                            width: 70px;
                         }
                     }
                 }
@@ -302,7 +302,7 @@ input, textarea {
                     grid-template-columns: auto;
                     grid-template-rows: max-content auto;
 
-                    // ---- //
+
                     #resize-tool-select-btn-bar.btn-bar {
                         display: grid;
                         grid-row: 1 / span 1;
@@ -335,15 +335,29 @@ input, textarea {
 
                         #ar-resize-btn-option.btn {
                             grid-row: 2 / span 1;
-                            grid-column: 1 / span 1;
+                            grid-column: 2 / span 1;
                         }
                         #scale-resize-btn-option.btn {
                             grid-row: 2 / span 1;
-                            grid-column: 2 / span 1;
+                            grid-column: 1 / span 1;
                         }
                     }
                     
-                    // ---- //
+
+                    #scale-original-wrapper {
+                        grid-template-columns: unset;
+                        grid-template-rows: unset;
+    
+                        .detail-label {
+                            // width: 45px;
+                        }
+                        .detail-value {
+                            background-color: #fff;
+                            // width: 50px;
+                        }
+                    }
+
+
                     #choose-ar-res-wrapper {
                         grid-template-columns: auto auto;
                         grid-template-rows: auto auto;
@@ -370,36 +384,9 @@ input, textarea {
                                 }
                             }
                         }
-
-                        #ar-grid {
-                            display: grid;
-                            background-color: orange;
-                            grid-row: 2 / span 1;
-                            grid-column: 1 / span 1;
-
-                        }
-                        #res-grid {
-                            background-color: aqua;
-                            grid-row: 2 / span 1;
-                            grid-column: 2 / span 1;
-                            display: flex;
-                            flex-wrap: wrap;
-                            align-content: baseline;
-                            column-gap: 5px;
-                            row-gap: 10px;
-
-                            .res-btn {
-                                height: max-content;
-                                background-color: rgb(93, 93, 93);
-                                &.active {
-                                    background-color: darkblue;
-                                }
-                            }
-                        }
-
                     }
                     
-                    // ---- //
+
                     .detail-wrapper.active {
                         display: grid;
                         grid-row: 2 / span 1;
@@ -408,21 +395,6 @@ input, textarea {
 
                     .detail-wrapper { display: none; }
 
-
-
-                    // ???? //
-                    #scale-original-wrapper {
-                        grid-template-columns: unset;
-                        grid-template-rows: unset;
-    
-                        .detail-label {
-                            // width: 45px;
-                        }
-                        .detail-value {
-                            background-color: #fff;
-                            // width: 50px;
-                        }
-                    }
 
                 }
 

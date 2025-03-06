@@ -82,7 +82,10 @@ def dev():
         # --------------------- #
         # Testing Images #
         # --------------------- #
-        img = ImageData("sample images/5706b224-6b47-404b-8178-d56ce4aed548.jpeg")
+        # img = ImageData("sample images/5706b224-6b47-404b-8178-d56ce4aed548.jpeg")
+        # img = ImageData("sample images/2025-02-24T13.56.17_1.jpg")
+        img = ImageData("sample images/2025-02-13T00.40.40_2.jpg")
+
         # img = ImageData("sample images/936f0e8d-c76f-4aa7-8b5c-37349f9b7da7.jpeg")
         # img = ImageData("sample images/00058-1310606601.png")
         # img = ImageData("sample images/civitai-dl (multiple loras).jpeg")
@@ -101,8 +104,7 @@ def dev():
 
 @app.route("/civitai-dev")
 def civitai_dev():
-    api = civitai("ea9b28c663e35006b1dd51162058724b")
-    api.set_browsing_level(31)
+    api = civitai.from_user_config()
     # data = api.get_generation_queue(tags=[Tag.DISLIKED])
     # data = api.get_all_generations(tags=[Tag.DISLIKED])
     # data = api.get_images(techniques=["inpainting"])
@@ -124,8 +126,8 @@ def civitai_dev():
     # data = api.get_all_generations()
     # data = api.get_image_generation_data(60630705)
     # data = api.get_model(24779)
-    # data = api.get_model_version(93208)
-    data = api.me()
+    data = api.get_model_version(93208)
+    # data = api.me()
     # data = api.get_tools()
 
     return data

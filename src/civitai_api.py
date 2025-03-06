@@ -34,7 +34,6 @@ class civitai:
         self.api_key = api_key
         
         self.account_settings = kwargs.get("account_settings")
-
         if self.api_key and not self.account_settings:
             self.account_settings: dict | None = self.get_account_settings()
 
@@ -46,10 +45,37 @@ class civitai:
         else:
             self.set_browsing_level(*browsing_level)
     
-
     @classmethod
-    def preload(cls, api_key:str, browsing_level:int, account_settings:dict):
-        isinstance = cls(api_key, browsing_level, account_settings=account_settings)
+    def from_user_config(cls):
+        if civitai.user_config_path().exists():
+            try:
+                with civitai.user_config_path().open("r") as fp:
+                    data = json.load(fp)
+                    return cls(data["api_key"], [data["browsing_level"]], account_settings=data["account_settings"])
+            except Exception as e:
+                raise e
+        
+        return cls()
+    
+    def get_user_config(self):
+        data = {
+            "api_key": self.api_key,
+            "browsing_level": self.browsing_level,
+            "account_settings": self.account_settings
+        }
+        return data
+
+    def save_user_config(self):
+        data = self.get_user_config()
+
+        with self.user_config_path().open("w+") as fp:
+            json.dump(data, fp)
+
+        return data
+
+    @staticmethod
+    def user_config_path() -> pathlib.Path:
+        return pathlib.Path(__file__).parent.joinpath("user_config.json").resolve()
 
 
     def me(self):
@@ -68,16 +94,26 @@ class civitai:
     def get_account_settings(self):
         headers = {"Authorization": f"Bearer {self.api_key}"}
 
-        with httpx.Client(headers=headers) as client:
-            req = client.build_request("GET", "https://civitai.com/user/account")
+        # with httpx.Client(headers=headers) as client:
+        #     req = client.build_request("GET", "https://civitai.com/user/account")
             
-            r = client.send(req)
+        #     r = client.send(req)
 
-            parser = _ScriptTagParser()
-            parser.feed(r.text)
+        #     parser = _ScriptTagParser()
+        #     parser.feed(r.text)
 
-            jsondata = json.loads(parser.script_tag_text.strip())
-            page_props = jsondata.get("props", {}).get("pageProps", {})
+        #     jsondata = json.loads(parser.script_tag_text.strip())
+        #     page_props = jsondata.get("props", {}).get("pageProps", {})
+        #     userdata = page_props.get("session", {}).get("user", {})
+        #     settings = page_props.get("settings", {})
+
+        #     return userdata
+        
+        with httpx.Client(headers=self.auth_headers()) as client:
+            r = client.get("https://civitai.com/_next/data/QTZm0NQ8U_VFivbfS8yYc/en/user/account.json")
+            
+            jsondata = r.json()
+            page_props = jsondata.get("pageProps", {})
             userdata = page_props.get("session", {}).get("user", {})
             settings = page_props.get("settings", {})
 
@@ -140,7 +176,7 @@ class civitai:
         }
 
         if cursor:
-            query_data["json"]["cursor"] = cursor
+            query_data["cursor"] = cursor
 
         input_json = to_json({"json": query_data})
 
@@ -185,12 +221,10 @@ class civitai:
             
             _params = {"input": to_json({"json": _input_json})}
             
-            req = client.build_request("GET", url, params=_params)
-            
-            r = client.send(req)
+            r = client.get(url, params=_params)
 
             jsondata = r.json()
-            jsondata = jsondata.get("result", {}).get("data", {}).get("json", {})
+            jsondata = jsondata.get("result", {}).get("data", {})
 
             return jsondata
 
@@ -198,22 +232,22 @@ class civitai:
         
         with httpx.Client(headers=headers) as client:
             data = get_queue_with_cursor(client, cursor=None, asc=asc, tags=tags_modified)
-            all_items.extend(data.get("items", []))
-            cursor = data.get("nextCursor")
+            all_items.extend(data.get("json", {}).get("items", []))
+            cursor = data.get("json", {}).get("nextCursor")
             while cursor != None:
-                data = get_queue_with_cursor(client, cursor)
-                all_items.extend(data.get("items", []))
-                cursor = data.get("nextCursor")
-                print(cursor)
+                data = get_queue_with_cursor(client, cursor, asc=asc, tags=tags_modified)
+                all_items.extend(data.get("json", {}).get("items", []))
+                cursor = data.get("json", {}).get("nextCursor")
         
-        return all_items
+        data = {"items": all_items}
+
+        return data
 
 
     def get_image_generation_data(self, image_id:int, **kwargs):
         """
         Get metadata for a published generated image
         """
-        
         url = self.base_trpc + "/image.getGenerationData"
 
         query_data = {"id": image_id, "authed":True}
@@ -227,7 +261,35 @@ class civitai:
 
             r = client.send(req)
 
+            # jsondata = r.json()
             jsondata = r.json().get("result", {}).get("data", {}).get("json", {})
+
+            return jsondata
+        
+
+    def get_image(self, image_id:int=None, post_id:int=None, **kwargs):
+        """
+        """
+        url = self.base_trpc + "/image.get"
+
+        query_data = {"authed":True}
+
+        if image_id:
+            query_data["id"] = int(image_id)
+        elif post_id:
+            query_data["postId"] = int(post_id)
+
+        params = {"input": to_json({"json": query_data})}
+
+        with httpx.Client() as client:
+            req = client.build_request("GET", url, params=params)
+
+            r = client.send(req)
+
+            # jsondata = r.json()
+            jsondata = r.json().get("result", {}).get("data", {}).get("json", {})
+            jsondata["fullUrl"] = civitai.create_image_url(jsondata["url"])
+            jsondata["fullUrl_small"] = civitai.create_image_url(jsondata["url"], width=jsondata["width"]/2)
 
             return jsondata
 
@@ -516,7 +578,7 @@ class civitai:
 
             for item in jsondata.get("items", []):
                 for image in item.get("images", []):
-                    image["fullUrl"] = civitai._create_image_url(image["url"])
+                    image["fullUrl"] = civitai.create_image_url(image["url"])
 
             return jsondata
 
@@ -571,7 +633,7 @@ class civitai:
             jsondata = r.json().get("result", {}).get("data", {}).get("json", {})
 
             for image_item in jsondata.get("items", []):
-                image_item["fullUrl"] = civitai._create_image_url(image_item["url"])
+                image_item["fullUrl"] = civitai.create_image_url(image_item["url"])
 
             return jsondata
 
@@ -656,6 +718,21 @@ class civitai:
             return jsondata
     
 
+    def get_model_versions(self, model_version_ids:list):
+        reqlist = []
+        
+        for mvid in model_version_ids:
+            url = f"https://civitai.com/api/v1/model-versions/{mvid}"
+            req = httpx.Request("GET", url)
+            reqlist.append(req)
+
+        responses = util.fetch_bulk(reqlist)
+
+        json_responses = [r.json() for r in responses]
+
+        return json_responses
+
+
     def get_model_version_by_hash(self, hash_value):
         url = f"https://civitai.com/api/v1/model-versions/by-hash/{hash_value}"
         
@@ -683,7 +760,7 @@ class civitai:
 
 
     @staticmethod
-    def _create_image_url(image_uuid:str, width:int=None):
+    def create_image_url(image_uuid:str, width:int=None):
         if width == None:
             return f"https://image.civitai.com/{civitai._public_image_key}/{image_uuid}/original=true"
         else:
@@ -814,7 +891,19 @@ class civitai:
         
         return string
 
+    
+    def _bulk_fetch_model_versions(self, data_items:list):
+        model_version_ids = []
         
+        for jobitem in data_items:
+            for step in jobitem["steps"]:
+                for resource in step["resources"]:
+                    model_version_ids.append(resource["id"])
+        model_version_ids = [x for x in set(model_version_ids)]
+        model_versions_data = self.get_model_versions(model_version_ids)
+        model_versions_data = {x["id"]: x for x in model_versions_data}
+        
+        return model_versions_data
 
 
 class _ScriptTagParser(HTMLParser):

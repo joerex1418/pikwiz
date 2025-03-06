@@ -1,0 +1,42 @@
+{
+    "api_key": "ea9b28c663e35006b1dd51162058724b",
+    "browsing_level": 31,
+    "account_settings": {
+        "id": 6739605,
+        "name": "Joe Rechenmacher",
+        "username": "FanofAnime99",
+        "email": "joe.rechenmacher@gmail.com",
+        "image": "e2695bb1-0f59-413e-8bfe-b740326f7a6c",
+        "showNsfw": true,
+        "blurNsfw": true,
+        "browsingLevel": 3,
+        "onboarding": 15,
+        "isModerator": false,
+        "createdAt": "2025-01-11T07:44:48.067Z",
+        "subscriptionId": "sub_01jhcsjv4ax72x8gd4bxserr6e",
+        "muted": false,
+        "muteConfirmedAt": null,
+        "autoplayGifs": false,
+        "filePreferences": {
+            "fp": "fp16",
+            "size": "pruned",
+            "format": "SafeTensor"
+        },
+        "meta": {
+            "scores": {
+                "total": 1120,
+                "users": 900,
+                "images": 0,
+                "models": 220
+            }
+        },
+        "excludeFromLeaderboards": false,
+        "rewardsEligibility": "Eligible",
+        "eligibilityChangedAt": null,
+        "paddleCustomerId": "ctm_01jha6kmt0aqqrjaqh553yxh5e",
+        "tier": "bronze",
+        "permissions": [],
+        "memberInBadState": false,
+        "allowAds": true
+    }
+}

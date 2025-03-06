@@ -230,7 +230,7 @@ RESOLUTIONS = [
 
 ]
 
-RESOLUTION_JSON_PATH = pathlib.Path(__file__).parents[1].joinpath("resolutions.json")
+RESOLUTION_JSON_PATH = pathlib.Path(__file__).parent.joinpath("resolutions.json")
 
 def generate_resolution_json():
     jsondata = []

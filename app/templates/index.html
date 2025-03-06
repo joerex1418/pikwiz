@@ -125,39 +125,18 @@
             
             <div id="resize-tools-wrapper" class="detail-wrapper">
                 <div id="resize-tool-select-btn-bar" class="btn-bar">
-                    <div id="ar-resize-btn-option" class="tool-select-btn btn active" data-prefix="ar">Aspect Ratios & Resolutions</div>
-                    <div id="scale-resize-btn-option" class="tool-select-btn btn" data-prefix="scale">Upscale/Downscale</div>
+                    <div id="scale-resize-btn-option" class="tool-select-btn btn active" data-prefix="scale">Upscale/Downscale</div>
+                    <div id="ar-resize-btn-option" class="tool-select-btn btn" data-prefix="ar">Aspect Ratios & Resolutions</div>
                 </div>
 
-                <div id="choose-ar-res-wrapper" class="detail-wrapper active" data-prefix="ar">
-                    <div id="orientation-selection-btn-bar" class="btn-bar">
-                        <div class="orientation-btn btn" data-orientation="square">Square</div>
-                        <div class="orientation-btn btn active" data-orientation="portrait">Portrait</div>
-                        <div class="orientation-btn btn" data-orientation="landscape">Landscape</div>
-                    </div>
-                    
-                    <div id="ar-grid">
-                        {% for arKey, resList in ar_to_res_map.items() %}
-                        {% set num = arKey.split(":")[0] %} {% set den = arKey.split(":")[1] %}
-                        <div class="btn ar-btn" data-orientation="portrait" data-portrait="{{num}}:{{den}}" data-landscape="{{den}}:{{num}}">{{num}}:{{den}}</div>
-                        {% endfor %}
-                    </div>
-
-                    <div id="res-grid">
-                        {% for arKey, resList in ar_to_res_map.items() %}
-                            {% for resData in resList %} {% set w = resData["width"] %} {% set h = resData["height"] %}
-                            {% set lanscapeAr = arKey.split(":")[1] + ":" + arKey.split(":")[0] %}
-                            {% set orientation = resData["orientation"] %}
-                            <div class="btn res-btn" data-orientation="{{orientation}}" data-portrait="{{w}}x{{h}}" data-landscape="{{h}}x{{w}}" data-portraitAr="{{arKey}}" data-lanscapeAr="{{landscapeAr}}">{{w}}x{{h}}</div>
-                            {% endfor %}
-                        {% endfor %}
-                    </div>
-
-                </div>
-
-                <div id="scale-original-wrapper" class="detail-wrapper" data-prefix="scale">
+                <div id="scale-original-wrapper" class="detail-wrapper active" data-prefix="scale">
                     <input class="detail-value scale-original" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number" step="0.05" min="0.05" value="1.00">
                 </div>
+
+                <div id="choose-ar-res-wrapper" class="detail-wrapper" data-prefix="ar">
+                    <div id="orientation-selection-btn-bar"></div>
+                </div>
+
 
             </div>
 
