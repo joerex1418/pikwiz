@@ -160,8 +160,9 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         document.getElementById("steps").querySelector(".detail-value").value = data["generation"]["settings"]["steps"]
         
         if (!data["generation"]["settings"]["sampler"]) data["generation"]["settings"]["sampler"] = ""
+        if (!data["generation"]["settings"]["schedule_type"]) data["generation"]["settings"]["schedule_type"] = ""
+        
         document.getElementById("sampler").querySelector(".detail-value").value = data["generation"]["settings"]["sampler"]
-        if (!data["generation"]["settings"]["schedule-type"]) data["generation"]["settings"]["schedule_type"] = ""
         document.getElementById("schedule-type").querySelector(".detail-value").value = data["generation"]["settings"]["schedule_type"]
 
         document.getElementById("cfg-scale").querySelector(".detail-value").value = data["generation"]["settings"]["cfg_scale"]

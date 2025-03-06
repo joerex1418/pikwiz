@@ -1,7 +1,6 @@
 import re
 import json
 import pathlib
-from html.parser import HTMLParser
 from typing import Literal
 from typing import Iterable
 
@@ -47,9 +46,9 @@ class civitai:
     
     @classmethod
     def from_user_config(cls):
-        if civitai.user_config_path().exists():
+        if civitai.get_user_config_path().exists():
             try:
-                with civitai.user_config_path().open("r") as fp:
+                with civitai.get_user_config_path().open("r") as fp:
                     data = json.load(fp)
                     return cls(data["api_key"], [data["browsing_level"]], account_settings=data["account_settings"])
             except Exception as e:
@@ -68,13 +67,13 @@ class civitai:
     def save_user_config(self):
         data = self.get_user_config()
 
-        with self.user_config_path().open("w+") as fp:
+        with self.get_user_config_path().open("w+") as fp:
             json.dump(data, fp)
 
         return data
 
     @staticmethod
-    def user_config_path() -> pathlib.Path:
+    def get_user_config_path() -> pathlib.Path:
         return pathlib.Path(__file__).parent.joinpath("user_config.json").resolve()
 
 
@@ -99,7 +98,7 @@ class civitai:
             
         #     r = client.send(req)
 
-        #     parser = _ScriptTagParser()
+        #     parser = util._ScriptTagParser()
         #     parser.feed(r.text)
 
         #     jsondata = json.loads(parser.script_tag_text.strip())
@@ -718,11 +717,31 @@ class civitai:
             return jsondata
     
 
-    def get_model_versions(self, model_version_ids:list):
-        reqlist = []
+    @staticmethod
+    def get_model_versions(version_ids:list=None, hashes:list=None) -> list[dict]:
+        """
+        Get data for specific versions of a CivitAI model with a 
+        list of version ids or hashes
+
+        Parameters
+        ----------
+        version_ids: list
+
+        hashes: list
+        """
         
-        for mvid in model_version_ids:
-            url = f"https://civitai.com/api/v1/model-versions/{mvid}"
+        reqlist = []
+
+        identifiers = []
+        if isinstance(version_ids, (list, tuple, set)) and len(version_ids) > 0:
+            urltemplate = "https://civitai.com/api/v1/model-versions/{}"
+            identifiers = version_ids
+        elif isinstance(hashes, (list, tuple, set)) and len(hashes) > 0:
+            urltemplate = "https://civitai.com/api/v1/model-versions/by-hash/{}"
+            identifiers = hashes
+
+        for _id in identifiers:
+            url = urltemplate.format(_id)
             req = httpx.Request("GET", url)
             reqlist.append(req)
 
@@ -736,7 +755,7 @@ class civitai:
     def get_model_version_by_hash(self, hash_value):
         url = f"https://civitai.com/api/v1/model-versions/by-hash/{hash_value}"
         
-        with httpx.Client(headers=self.auth_headers()) as client:
+        with httpx.Client() as client:
             r = client.get(url)
             
             jsondata = r.json()
@@ -850,7 +869,7 @@ class civitai:
 
     
     @staticmethod
-    def parse_air(string:str):
+    def parse_air_string(string:str):
         m = re.search(
             r"^(?:urn:)?(?:air:)?(?:([a-zA-Z0-9_\-\/]+):)?(?:([a-zA-Z0-9_\-\/]+):)?([a-zA-Z0-9_\-\/]+):([a-zA-Z0-9_\-\/]+)(?:@([a-zA-Z0-9_\-]+))?(?:\.([a-zA-Z0-9_\-]+))?$", 
             string
@@ -904,30 +923,6 @@ class civitai:
         model_versions_data = {x["id"]: x for x in model_versions_data}
         
         return model_versions_data
-
-
-class _ScriptTagParser(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.in_next_data_script = False
-        self.script_tag_text = ""
-
-    def handle_starttag(self, tag, attrs):
-        # Check for a <script> tag with id="__NEXT_DATA__"
-        if tag == "script":
-            attr_dict = dict(attrs)
-            if attr_dict.get("id") == "__NEXT_DATA__":
-                self.in_next_data_script = True
-
-    def handle_data(self, data):
-        # If we're inside the correct <script>, collect the data
-        if self.in_next_data_script:
-            self.script_tag_text += data
-
-    def handle_endtag(self, tag):
-        # When closing the <script>, stop collecting data.
-        if tag == "script" and self.in_next_data_script:
-            self.in_next_data_script = False
 
 
 

@@ -1,60 +1,24 @@
+import io
 import re
 import json
 import pathlib
 import inspect
 import asyncio
+from html.parser import HTMLParser
+from typing import overload as typeoverload
 
 import httpx
+from PIL import Image
+from PIL.ExifTags import TAGS
+
+from .color import color, cprint
+
+
+TEST_OUTPUTS = pathlib.Path(__file__).parents[1].joinpath("test-outputs").resolve()
 
 # ---------------------------- #
 # Logging
 # ---------------------------- #
-
-class _color:
-    __slots__ = tuple()
-    def __init__(self) -> None:
-        pass
-    def bold(self,s: str):
-        return f"\033[1m{s}\033[0m"
-    
-    def dim(self,s: str):
-        return f"\033[2m{s}\033[0m"
-    
-    def underline(self,s: str):
-        return f"\033[4m{s}\033[0m"
-    
-    def italic(self,s: str):
-        return f"\033[3m{s}\033[0m"
-    
-    def yellow(self,s: str):
-        return f"\033[93m{s}\033[0m"
-    
-    def cyan(self,s: str):
-        return f"\033[96m{s}\033[0m"
-    
-    def magenta(self,s: str):
-        return f"\033[35m{s}\033[0m"
-    
-    def bright_magenta(self,s: str):
-        return f"\033[95m{s}\033[0m"
-    
-    def red(self,s: str):
-        return f"\033[31m{s}\033[0m"
-    
-    def bright_red(self,s: str):
-        return f"\033[91m{s}\033[0m"
-    
-    def green(self,s: str):
-        return f"\033[92m{s}\033[0m"
-    
-    def blue(self,s: str):
-        return f"\033[34m{s}\033[0m"
-    
-    def bright_yellow(self,s: str):
-        return f"\033[93m{s}\033[0m"
-
-color = _color()
-
 def log_response(r:httpx.Response):
     if r.status_code in (401, 403):
         colorize = color.red
@@ -103,6 +67,29 @@ def get_headers():
         "Content-Type": "application/json"
     }
 
+
+class _ScriptTagParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.in_next_data_script = False
+        self.script_tag_text = ""
+
+    def handle_starttag(self, tag, attrs):
+        # Check for a <script> tag with id="__NEXT_DATA__"
+        if tag == "script":
+            attr_dict = dict(attrs)
+            if attr_dict.get("id") == "__NEXT_DATA__":
+                self.in_next_data_script = True
+
+    def handle_data(self, data):
+        # If we're inside the correct <script>, collect the data
+        if self.in_next_data_script:
+            self.script_tag_text += data
+
+    def handle_endtag(self, tag):
+        # When closing the <script>, stop collecting data.
+        if tag == "script" and self.in_next_data_script:
+            self.in_next_data_script = False
 
 
 # ---------------------------- #
@@ -239,6 +226,7 @@ RESOLUTIONS = [
 
 RESOLUTION_JSON_PATH = pathlib.Path(__file__).parent.joinpath("resolutions.json")
 
+
 def generate_resolution_json():
     jsondata = []
     
@@ -276,8 +264,103 @@ def generate_resolution_json():
 
     return jsondata
 
+
 def load_resolution_json():
     with RESOLUTION_JSON_PATH.open("r") as fp:
         return json.load(fp)
     
+
+# ------------------------------------------ #
+# Resize Images
+# ------------------------------------------ #
+def resize_image(source:pathlib.Path|str|bytes, width:int=None, height:int=None) -> Image.Image:
+    if isinstance(source, str) and source.startswith("http"):
+        url = httpx.URL(source)
+        r = httpx.get(url)
+        io_bytes = io.BytesIO(r.content)
+        source = io_bytes
     
+    with Image.open(source) as image:
+        if width and height:
+            new_size = (width, height)
+        else:
+            new_size = (image.width // 2, image.height // 2)
+        
+        new_image = image.resize(new_size)
+
+        # For dev purposes
+        # filestem = "output" if save_name == None else save_name
+        # filestem = filestem[:filestem.rfind(".")] if filestem.rfind(".") != -1 else filestem
+
+        # image.save(TEST_OUTPUTS.joinpath(f"{filestem}.{image.format.lower()}"), format=image.format)
+        
+        # new_image.save(TEST_OUTPUTS.joinpath(f"{filestem}-reduced.{image.format.lower()}"), format=image.format)
+
+        return new_image
+
+@typeoverload
+def resize_bulk_from_web(urllist, factor:int|float) -> list[Image.Image]:...
+@typeoverload
+def resize_bulk_from_web(urllist, width:int, height:int) -> list[Image.Image]:...
+@typeoverload
+def resize_bulk_from_web(urllist, factor:int|float, return_originals:bool=True) -> tuple[list[Image.Image],list[Image.Image]]:...
+@typeoverload
+def resize_bulk_from_web(urllist, width:int, height:int, return_originals:bool=True) -> tuple[list[Image.Image],list[Image.Image]]:...
+def resize_bulk_from_web(urllist, **kwargs) -> list[Image.Image]:
+    """
+    Only populate width and height arguments if all the original images are 
+    the same resolution. Otherwise some of the new images will probably look 
+    strange
+    """
+    width = kwargs.get("width")
+    height = kwargs.get("height")
+    factor = kwargs.get("factor")
+
+    if not factor and not width and not height:
+        raise ValueError("Need 'factor' or 'width' and 'height' parameters populated")
+
+    if factor and factor < 1:
+        factor = int(1 // factor)
+    else:
+        factor = int(factor)
+    
+    if isinstance(urllist, str):
+        urllist = [urllist]
+
+    reqlist = []
+    for url in urllist:
+        req = httpx.Request("GET", httpx.URL(url))
+        reqlist.append(req)
+
+    responses = fetch_bulk(reqlist)
+    
+    og_image_list = []
+    new_image_list = []
+
+    for r in responses:
+        io_bytes = io.BytesIO(r.content)
+
+        with Image.open(io_bytes) as image:
+            if width and height:
+                new_size = (width, height)
+            else:
+                new_size = (image.width // factor, image.height // factor)
+            
+            new_image = image.resize(new_size)
+
+            new_image.format = image.format
+            new_image.format_description = image.format_description
+            new_image.info["exif"] = image.info["exif"]
+            new_image.info["url"] = r.url.__str__()
+
+            og_image_list.append(image)
+            new_image_list.append(new_image)
+    
+
+    if kwargs.get("return_originals") == True:
+        return new_image_list, og_image_list
+
+    return new_image_list
+
+
+

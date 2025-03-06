@@ -6,7 +6,7 @@ import httpx
 from .util import fetch_bulk
 from .util import get_headers
 from .util import parse_weighted_prompt_tags
-from .color import console_color as console
+from .color import console as console
 
 
 def search(query, _type:Literal["MODEL", "USER", "TAG", "WORKFLOW_TEMPLATE"], filters:dict=None, sort_by:Literal["MOST_RUN", "HOT_TODAY", "NEWEST"]=None, limit:int=20, offset:int=0):

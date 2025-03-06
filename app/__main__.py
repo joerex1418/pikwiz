@@ -13,18 +13,17 @@ from flask_assets import Environment, Bundle
 project_root = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(project_root))
 
-from src.civitai_constants import BaseModel, CheckpointType, FileFormat, ModelSort, ModelType, Period, Sort, GenTag, Technique, Tool
-from src.read import ImageData
-from src.prompt import parse_prompt_string
+from src.parse import ImageData
+from src.parse import parse_prompt_string
 from src.color import color
-from src.color import console_color as console
+from src.color import console as console
 from src.civitai_api import civitai
 from src.civitai_api import model_lookup
 from src.civitai_api import model_version_lookup
 from src.civitai_api import bulk_resource_lookup
 from src.util import RESOLUTIONS
 from src.util import generate_resolution_json, load_resolution_json
-from src.util import get_line_number
+from src.civitai_constants import BaseModel, CheckpointType, FileFormat, ModelSort, ModelType, Period, Sort, GenTag, Technique, Tool
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -65,25 +64,12 @@ def index():
 
     return render_template('index.html', ar_to_res_map=ar_to_res_map, square=square, nonsquare=nonsquare, portrait=portrait, landscape=landscape, nonsquare_ars=nonsquare_ars)
 
-@app.route("/dev")
-def dev():
+@app.route("/manual_load")
+def manual_load():
     path = request.args.get("path")
     if path:
+        path = pathlib.Path(path).name
         img = ImageData(f"sample images/{path}")
-    else:
-        # --------------------- #
-        # Testing Images #
-        # --------------------- #
-        # img = ImageData("sample images/5706b224-6b47-404b-8178-d56ce4aed548.jpeg")
-        # img = ImageData("sample images/2025-02-24T13.56.17_1.jpg")
-        img = ImageData("sample images/2025-02-13T00.40.40_2.jpg")
-
-        # img = ImageData("sample images/936f0e8d-c76f-4aa7-8b5c-37349f9b7da7.jpeg")
-        # img = ImageData("sample images/00058-1310606601.png")
-        # img = ImageData("sample images/civitai-dl (multiple loras).jpeg")
-        # img = ImageData("sample images/civitai-dl (multiple loras) (og) 2.jpeg")
-        # img = ImageData("sample images/civitai-dl (multiple loras) (og).jpeg")
-        # img = ImageData("sample images/2025-02-13T15.44.34_1.jpg")
     
     generation_dict = parse_prompt_string(img.raw_prompt)
     
@@ -136,6 +122,7 @@ def extract_prompt():
 
     generation_dict = parse_prompt_string(img.raw_prompt)
     
+
     data = {
         "generation": generation_dict,
         "raw": img.raw_prompt
@@ -164,6 +151,7 @@ def civitai_model():
         data = {}
     
     return data
+
 
 if __name__ == "__main__":
     app.run("127.0.0.1", port=5500, debug=True)

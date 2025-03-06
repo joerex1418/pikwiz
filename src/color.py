@@ -8,7 +8,7 @@ from rich.style import Style
 from rich.theme import Theme
 from rich.console import Console
 
-console_color = Console(
+console = Console(
     theme=Theme({
         "json.brace": Style(bold=True),
         "json.key": Style(color="cyan"),
@@ -38,15 +38,15 @@ def ppjson(_json:typing.Union[dict,str,list]):
         pass
     
     try:
-        console_color.print_json(data=_json)
+        console.print_json(data=_json)
     except:
         try:
-            console_color.print_json(data=dict(_json))
+            console.print_json(data=dict(_json))
         except:
             try:
-                console_color.print(_json)
+                console.print(_json)
             except:
-                console_color.print("<NO_DATA>")
+                console.print("<NO_DATA>")
 
 
 class _color:
@@ -182,7 +182,7 @@ class ColorPrint:
         ts = "\t" * 0
         print(f"{ts}{color.bright_yellow(s)}")
 
-
+cprint = ColorPrint()
 
 color = _color()
 
@@ -210,7 +210,7 @@ def pretty_print(obj:typing.Union[typing.Dict,typing.List], colorize:bool=True, 
     if json_default == None:
         json_default = serialize_default
 
-    c = console_color if colorize == True else console_plain
+    c = console if colorize == True else console_plain
 
     if type(obj).__name__ == "Response":
         c.print(obj)

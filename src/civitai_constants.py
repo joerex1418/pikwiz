@@ -46,7 +46,6 @@ ASPECT_RATIOS = {
 }
 
 
-
 SAMPLER_MAP = {
     "Euler a": {"sampler_civitai": "EulerA", "sampler_comfy": "euler_ancestral", "scheduler": "normal"},
     "Euler": {"sampler_civitai": "Euler", "sampler_comfy": "euler", "scheduler": "normal"},
@@ -75,6 +74,21 @@ SAMPLER_MAP = {
     "UniPC": {"sampler_civitai": "UniPC", "sampler_comfy": "uni_pc", "scheduler": "normal"},
     "LCM": {"sampler_civitai": "LCM", "sampler_comfy": "lcm", "scheduler": "normal"},
     "undefined": {"sampler_civitai": "undefined", "sampler_comfy": "dpmpp_2m", "scheduler": "karras"},
+}
+
+
+CIVITAI_SAMPLER_DROPDOWN_MAP = {
+    "Euler a": ["Euler a", "Normal"],
+    "DPM++ 2M Karras": ["DPM++ 2M", "Karras"],
+    "Euler": ["Euler", "Normal"],
+    "Heun": ["Heun", "Normal"],
+    "LMS": ["LMS", "Normal"],
+    "DDIM": ["DDIM", "Normal"],
+    "DPM2": ["DPM2", "Normal"],
+    "DPM2 a": ["DPM2 a", "Normal"],
+    "Euler a Karras": ["Euler a", "Karras"],
+    
+    "euler_ancestral": ["Euler a", "Normal"],
 }
 
 
