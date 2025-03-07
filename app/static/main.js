@@ -154,6 +154,7 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         let checkpointVersionName = null;
 
         let civitaiResources = data["generation"]["civitai_resources"];
+        civitaiResources = civitaiResources ? civitaiResources : []
         for (let index = 0; index < civitaiResources.length; index++) {
             const resource = civitaiResources[index];
             if (resource["type"] == "checkpoint") {
