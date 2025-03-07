@@ -280,7 +280,7 @@ function changeWeight(promptElem, direction) {
         } 
         else if (selectionStart > promptElem.value.lastIndexOf(",")) {
             location = "end";
-            startIndex = promptElem.value.lastIndexOf(",");
+            startIndex = promptElem.value.lastIndexOf(",") + 1;
             endCommaIndex = promptElem.value.length;
         } else {
             console.log("idk man")
@@ -288,15 +288,18 @@ function changeWeight(promptElem, direction) {
         }
         
         let tagString = promptElem.value.slice(startIndex, endCommaIndex);
+        console.log("tagString", `"${tagString}"`)
         let tagData = parseTag(tagString)
         
-        console.log(tagData)
-        console.log("tag     \t -->", tagData["tag"])
-        console.log("weight  \t -->", tagData["weight"])
-        console.log("type    \t -->", tagData["type"])
-        console.log("display \t -->", tagData["display"])
+        // console.log(tagData)
+        // console.log("tag     \t -->", tagData["tag"])
+        // console.log("weight  \t -->", tagData["weight"])
+        // console.log("type    \t -->", tagData["type"])
+        // console.log("display \t -->", tagData["display"])
         
         let newWeight = direction == "up" ? tagData["weight"] + 0.05 : tagData["weight"] - 0.05;
+        let newWeightString = newWeight > 0 ? newWeight.toFixed(2) : "0";
+
         let bracketOpenChar = null;
         let bracketCloseChar = null;
         if (tagData["display"].indexOf("(") != -1) {
@@ -308,33 +311,60 @@ function changeWeight(promptElem, direction) {
         }
 
         let newTagString = tagData["tag"];
-        let leftSide = null;
-        let rightSide = null;
+        let openBracketCount = tagData["display"].split(bracketOpenChar).length - 1;
+        let closeBracketCount = tagData["display"].split(bracketCloseChar).length - 1
+
 
         // Generate new tag representation
         if (tagData["type"] == "explicit") {
-            newTagString = `(${tagData['tag']}:${newWeight})`
+            newTagString = `(${tagData['tag']}:${newWeightString})`
         }
         else if (tagData["type"] == "implicit") {
             // Ensure same number of parentheses on both sides
-            if ((tagData["display"].split(bracketOpenChar).length - 1) == (tagData["display"].split(bracketCloseChar).length - 1)) {
-                newBracketCount = direction == "up" ? tagData["display"].split(bracketOpenChar).length : tagData["display"].split(bracketOpenChar).length - 2;
-                newTagString = `${bracketOpenChar.repeat(newBracketCount)}${tagData['tag']}${bracketCloseChar.repeat(newBracketCount)}`
+            if (openBracketCount == closeBracketCount) {
+                /* Explicit weight syntax will be favored for tags enclosed in only 1 pair of brackets 
+                NOTE: This could be customizeable though. */
+                if (openBracketCount == 1) {
+                    newTagString = `(${tagData['tag']}:${newWeightString})`
+                } else {
+                    let newBracketCount = direction == "up" ? openBracketCount + 1 : openBracketCount - 1;
+                    newTagString = `${bracketOpenChar.repeat(newBracketCount)}${tagData['tag']}${bracketCloseChar.repeat(newBracketCount)}`
+                }
             }
+        }
+        else if (tagData["type"] == "default") {
+            newTagString = `(${tagData['tag']}:${newWeightString})`
         }
 
         // Build new prompt string
+        let newPromptString = undefined;
+        let newStartIndex = null;
+        let newEndCommaIndex = null;
         if (location == "start") {
-            console.log(newTagString)
+            newPromptString = `${newTagString}, ${promptElem.value.slice(endCommaIndex + 1).trim()}`;
+            newStartIndex = 0;
+            newEndCommaIndex = newPromptString.indexOf(",");
+            
+            promptElem.value = newPromptString;
+            promptElem.setSelectionRange(newStartIndex, newEndCommaIndex);
         } 
         else if (location == "middle") {
-            console.log(newTagString)
-            // leftSide = promptElem.value.slice(0, startIndex - 1);
-            // rightSide = promptElem.value.slice(endCommaIndex + 1);
+            newPromptString = `${promptElem.value.slice(0, startIndex - 1)}, ${newTagString}, ${promptElem.value.slice(endCommaIndex + 1).trim()}`;
+            newStartIndex = newPromptString.indexOf(newTagString);
+            newEndCommaIndex = newPromptString.indexOf(",", newStartIndex);
+            
+            promptElem.value = newPromptString;
+            promptElem.setSelectionRange(newStartIndex, newEndCommaIndex);
         }
         else if (location == "end") {
-            console.log(newTagString)
+            newPromptString = `${promptElem.value.slice(0, startIndex - 1).trim()}, ${newTagString}`;
+            newStartIndex = newPromptString.indexOf(newTagString);
+            
+            promptElem.value = newPromptString;
+            promptElem.setSelectionRange(newStartIndex, newPromptString.length);
         }
+
+
 
 
     }
