@@ -73,8 +73,10 @@ def extract_prompt_from_image(image: Image.Image):
                     raw_comment: bytes = exif_dict["UserComment"]
                     if b"UNICODE" in raw_comment:
                         prompt_str = raw_comment[raw_comment.find(b"UNICODE") + 7:].decode("utf-8")
+                    elif b"ASCII" in raw_comment:
+                        prompt_str = raw_comment[raw_comment.find(b"ASCII") + 5:].decode("utf-8")
                     else:
-                        cprint.bright_red("Couldn't find UNICODE chars in exif byte string")
+                        cprint.bright_red("Couldn't find data in UserComment")
 
         except:
             exif_bytes: bytes = image.info["exif"]
@@ -82,7 +84,7 @@ def extract_prompt_from_image(image: Image.Image):
             if b"UNICODE" in exif_bytes:
                 prompt_str = exif_bytes[exif_bytes.find(b"UNICODE") + 7:].decode("utf-8")
             else:
-                cprint.bright_red("Couldn't find UNICODE chars in exif byte string")
+                cprint.bright_red("Couldn't find data in exif byte string")
 
     
     return prompt_str.replace("\x00", "")
@@ -299,6 +301,7 @@ def parse_prompt_string(raw_prompt_string):
                     resource["base_model"] = resource_data[0]["baseModel"]
                     resource["model_id"] = resource_data[0]["modelId"]
                     resource["model_name"] = resource_data[0]["model"]["name"]
+                    resource["model_version_id"] = resource_data[0]["id"]
                     resource["model_version_name"] = resource_data[0]["name"]
                     resource["sub_type"] = resource_data[0]["model"]["type"]
                     resource["trained_words"] = resource_data[0]["trainedWords"]

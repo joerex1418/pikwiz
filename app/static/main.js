@@ -147,8 +147,56 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
     })
     .then(response => response.json())
     .then(data => {
-        document.getElementById("model-checkpoint").querySelector(".detail-value").value = data["generation"]["settings"]["model"]
-        
+        let baseModel = null;
+        let checkpointId = null;
+        let checkpointVersionId = null;
+        let checkpointName = data["generation"]["settings"]["model"];
+        let checkpointVersionName = null;
+
+        let civitaiResources = data["generation"]["civitai_resources"];
+        for (let index = 0; index < civitaiResources.length; index++) {
+            const resource = civitaiResources[index];
+            if (resource["type"] == "checkpoint") {
+                baseModel = resource["base_model"];
+                checkpointId = resource["model_id"];
+                
+                // checkpointVersionId = resource["modelVersionId"];
+                // checkpointVersionName = resource["modelVersionName"];
+
+                if (resource["modelName"] == undefined) {
+                    if (resource["model_name"]) {
+                        checkpointName = resource["model_name"];
+                    }
+                } else {
+                    checkpointName = resource["modelName"];
+                }
+
+                if (resource["modelVersionId"] == undefined) {
+                    if (resource["model_version_id"]) {
+                        checkpointVersionId = resource["model_name"];
+                    }
+                } else {
+                    checkpointVersionId = resource["modelVersionId"];
+                }
+
+                if (resource["modelVersionName"] == undefined) {
+                    if (resource["model_version_name"]) {
+                        checkpointVersionName = resource["model_version_name"];
+                    }
+                } else {
+                    checkpointVersionName = resource["modelVersionName"];
+                }
+
+                break;
+            }
+        }
+        let checkpointInputElem = document.getElementById("model-checkpoint").querySelector(".detail-value")
+        checkpointInputElem.value = checkpointName;
+        checkpointInputElem.dataset["checkpointId"] = checkpointId;
+        checkpointInputElem.dataset["checkpointVersionId"] = checkpointVersionId;
+        checkpointInputElem.dataset["checkpointVersionName"] = checkpointVersionName;
+
+
         if (!data["generation"]["settings"]["vae"]) data["generation"]["settings"]["vae"] = ""
         document.getElementById("vae").querySelector(".detail-value").value = data["generation"]["settings"]["vae"]
 
@@ -161,7 +209,7 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         
         if (!data["generation"]["settings"]["sampler"]) data["generation"]["settings"]["sampler"] = ""
         if (!data["generation"]["settings"]["schedule_type"]) data["generation"]["settings"]["schedule_type"] = ""
-        
+
         document.getElementById("sampler").querySelector(".detail-value").value = data["generation"]["settings"]["sampler"]
         document.getElementById("schedule-type").querySelector(".detail-value").value = data["generation"]["settings"]["schedule_type"]
 
@@ -172,7 +220,8 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         let size = data["generation"]["settings"]["size"];
         let width = parseInt(size.split("x")[0]);
         let height = parseInt(size.split("x")[1]);
-        let imageRatio = getImageRatio(width, height)
+        let imageRatio = getImageRatio(width, height);
+
         document.getElementById("width").querySelector(".detail-value").value = width;
         document.querySelector("#width .detail-value").dataset["originalValue"] = width;
 
