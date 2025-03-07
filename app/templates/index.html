@@ -49,13 +49,19 @@
         <div id="grid-2" class="details-grid">
             <div id="positive-prompt" class="detail-wrapper">
                 <div class="detail-label">Positive Prompt:</div>
-                <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+                <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false">(ultra high res:1.4), (masterpiece), (beautiful lighting:1.4) , lush green forest, Mountains, Bright sunlight illuminates the crystal-clear water, (deep underwater), anime, half above water and half below water, (clear underwater), beautiful sky with clouds and smoke, tropical fish, depth
+                </textarea>
             </div>
             
             <div id="negative-prompt" class="detail-wrapper">
                 <div class="detail-label">Negative Prompt:</div>
                 <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
+
+            <script>
+                document.querySelector("#positive-prompt textarea").value = document.querySelector("#positive-prompt textarea").value.trim();
+                document.querySelector("#negative-prompt textarea").value = document.querySelector("#negative-prompt textarea").value.trim();
+            </script>
 
             <div id="loras" class="detail-wrapper">
                 <div class="detail-label">Loras:</div>

@@ -6,13 +6,17 @@ positivePromptElem.addEventListener("keydown", function(e) {
     if ((e.ctrlKey & e.shiftKey)) {
         switch (e.key) {
             case "ArrowLeft":
-                moveTagLeft(positivePromptElem); break;
+                moveTagLeft(positivePromptElem); 
+                break;
             case "ArrowRight":
-                moveTagRight(positivePromptElem); break;
+                moveTagRight(positivePromptElem); 
+                break;
             case "ArrowUp":
-                increaseWeight(positivePromptElem); break;
+                changeWeight(positivePromptElem, "up"); 
+                break;
             case "ArrowDown":
-                decreaseWeight(positivePromptElem); break;
+                changeWeight(positivePromptElem, "down"); 
+                break;
         }
         e.preventDefault();
     }
@@ -23,13 +27,17 @@ negativePromptElem.addEventListener("keydown", function(e) {
     if ((e.ctrlKey & e.shiftKey)) {
         switch (e.key) {
             case "ArrowLeft":
-                moveTagLeft(negativePromptElem); break;
+                moveTagLeft(negativePromptElem); 
+                break;
             case "ArrowRight":
-                moveTagRight(negativePromptElem); break;
+                moveTagRight(negativePromptElem); 
+                break;
             case "ArrowUp":
-                increaseWeight(negativePromptElem); break;
+                changeWeight(negativePromptElem, "up"); 
+                break;
             case "ArrowDown":
-                decreaseWeight(negativePromptElem); break;
+                changeWeight(negativePromptElem, "down"); 
+                break;
         }
         e.preventDefault();
     }
@@ -44,6 +52,7 @@ function moveTagLeft(promptElem) {
 
     if (selectionStart >=0) {
         let tagList = promptElem.value.split(",");
+
         /* Check if less than 3 tags */
         if (tagList.length < 3) {
             if (tagList.length == 2) {
@@ -57,7 +66,6 @@ function moveTagLeft(promptElem) {
                     secondaryTagString = tagList[0].trim();
                 }
 
-                // let newString = secondaryTagString + ", " + selectedTagString;
                 let newString = selectedTagString + ", " + secondaryTagString;
 
                 let newSelectedTagStartIndex = newString.indexOf(selectedTagString);
@@ -245,6 +253,149 @@ function moveTagRight(promptElem) {
     }
 }
 
-function increaseWeight(promptElem) {
+function changeWeight(promptElem, direction) {
+    let selectionStart = promptElem.selectionStart;
 
+    if (selectionStart >= 0) {
+        let tagList = promptElem.value.split(",");
+        let location = null;
+
+        let startIndex = null;
+        let endCommaIndex = null;
+
+        if ((selectionStart < promptElem.value.indexOf(",")) || (tagList.length < 2)) {
+            location = "start";
+            if (promptElem.value.indexOf(",") == -1) {
+                startIndex = 0;
+                endCommaIndex = promptElem.value.length;
+            } else {
+                startIndex = 0;
+                endCommaIndex = promptElem.value.indexOf(",");
+            }
+        }
+        else if ((promptElem.value.indexOf(",") < selectionStart) && (selectionStart < promptElem.value.lastIndexOf(","))) {
+            location = "middle";
+            startIndex = promptElem.value.slice(0, selectionStart).lastIndexOf(",") + 1;
+            endCommaIndex = promptElem.value.slice(selectionStart).indexOf(",") + selectionStart;
+        } 
+        else if (selectionStart > promptElem.value.lastIndexOf(",")) {
+            location = "end";
+            startIndex = promptElem.value.lastIndexOf(",");
+            endCommaIndex = promptElem.value.length;
+        } else {
+            console.log("idk man")
+            return;
+        }
+        
+        let tagString = promptElem.value.slice(startIndex, endCommaIndex);
+        let tagData = parseTag(tagString)
+        
+        console.log(tagData)
+        console.log("tag     \t -->", tagData["tag"])
+        console.log("weight  \t -->", tagData["weight"])
+        console.log("type    \t -->", tagData["type"])
+        console.log("display \t -->", tagData["display"])
+        
+        let newWeight = direction == "up" ? tagData["weight"] + 0.05 : tagData["weight"] - 0.05;
+        let bracketOpenChar = null;
+        let bracketCloseChar = null;
+        if (tagData["display"].indexOf("(") != -1) {
+            bracketOpenChar = "("
+            bracketCloseChar = ")"
+        } else if (tagData["display"].indexOf("[")) {
+            bracketOpenChar = "["
+            bracketCloseChar = "]"
+        }
+
+        let newTagString = tagData["tag"];
+        let leftSide = null;
+        let rightSide = null;
+
+        // Generate new tag representation
+        if (tagData["type"] == "explicit") {
+            newTagString = `(${tagData['tag']}:${newWeight})`
+        }
+        else if (tagData["type"] == "implicit") {
+            // Ensure same number of parentheses on both sides
+            if ((tagData["display"].split(bracketOpenChar).length - 1) == (tagData["display"].split(bracketCloseChar).length - 1)) {
+                newBracketCount = direction == "up" ? tagData["display"].split(bracketOpenChar).length : tagData["display"].split(bracketOpenChar).length - 2;
+                newTagString = `${bracketOpenChar.repeat(newBracketCount)}${tagData['tag']}${bracketCloseChar.repeat(newBracketCount)}`
+            }
+        }
+
+        // Build new prompt string
+        if (location == "start") {
+            console.log(newTagString)
+        } 
+        else if (location == "middle") {
+            console.log(newTagString)
+            // leftSide = promptElem.value.slice(0, startIndex - 1);
+            // rightSide = promptElem.value.slice(endCommaIndex + 1);
+        }
+        else if (location == "end") {
+            console.log(newTagString)
+        }
+
+
+    }
+}
+
+
+function parseTag(tag) {
+    if (typeof tag !== "string") {
+        return {};
+    }
+
+    tag = tag.trim();
+    const tagInfo = {};
+
+    // Helper function to calculate weight
+    function calculateWeight(count, decrease = false) {
+        const base = 1.1;
+        return decrease ? Math.pow(base, -count) : Math.pow(base, count);
+    }
+
+    // Check for explicit weight (e.g., `(cute dress:1.25)`)
+    const explicitMatch = tag.match(/^\(([^:()]+):([\d.]+)\)$/);
+    if (explicitMatch) {
+        const [_, tagName, weight] = explicitMatch;
+        tagInfo["tag"] = tagName.trim();
+        tagInfo["weight"] = parseFloat(weight);
+        tagInfo["type"] = "explicit";
+        tagInfo["display"] = tag.trim();
+        return tagInfo;
+    }
+
+    // Check for implicit weight increase (e.g., `((1girl))`)
+    const implicitIncreaseMatch = tag.match(/^(\(+)([^()]+)(\)+)$/);
+    if (implicitIncreaseMatch) {
+        const [_, openBrackets, tagName] = implicitIncreaseMatch;
+        const count = openBrackets.length;
+        const weight = parseFloat(calculateWeight(count).toFixed(4));
+        tagInfo["tag"] = tagName.trim();
+        tagInfo["weight"] = weight;
+        tagInfo["type"] = "implicit";
+        tagInfo["display"] = tag.trim();
+        return tagInfo;
+    }
+
+    // Check for implicit weight decrease (e.g., `[grayscale]`)
+    const implicitDecreaseMatch = tag.match(/^(\[+)([^\[\]]+)(\]+)$/);
+    if (implicitDecreaseMatch) {
+        const [_, openBrackets, tagName] = implicitDecreaseMatch;
+        const count = openBrackets.length;
+        const weight = parseFloat(calculateWeight(count, true).toFixed(4));
+        tagInfo["tag"] = tagName.trim();
+        tagInfo["weight"] = weight;
+        tagInfo["type"] = "implicit";
+        tagInfo["display"] = tag.trim();
+        return tagInfo;
+    }
+
+    // Default case: no weight
+    tagInfo["tag"] = tag.trim();
+    tagInfo["weight"] = 1.0;
+    tagInfo["type"] = "default";
+    tagInfo["display"] = tag.trim();
+    return tagInfo;
 }
