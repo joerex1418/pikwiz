@@ -288,17 +288,16 @@ function changeWeight(promptElem, direction) {
         }
         
         let tagString = promptElem.value.slice(startIndex, endCommaIndex);
-        console.log("tagString", `"${tagString}"`)
+
         let tagData = parseTag(tagString)
-        
-        // console.log(tagData)
-        // console.log("tag     \t -->", tagData["tag"])
-        // console.log("weight  \t -->", tagData["weight"])
-        // console.log("type    \t -->", tagData["type"])
-        // console.log("display \t -->", tagData["display"])
         
         let newWeight = direction == "up" ? tagData["weight"] + 0.05 : tagData["weight"] - 0.05;
         let newWeightString = newWeight > 0 ? newWeight.toFixed(2) : "0";
+        if (newWeightString.split(".")[1] == "00") {
+            newWeightString = newWeightString.split(".")[0]
+        } else if (newWeightString.charAt(newWeightString.length - 1) == "0") {
+            newWeightString = newWeight.toFixed(1)
+        }
 
         let bracketOpenChar = null;
         let bracketCloseChar = null;
