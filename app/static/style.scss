@@ -27,6 +27,9 @@ $text-input-dark: rgb(245, 245, 245);
 }
 
 // @media only screen and (min-width: 970px) {   }
+html {
+    font-size: 12px;
+}
 
 .btn {
     cursor: pointer;
@@ -42,7 +45,7 @@ $text-input-dark: rgb(245, 245, 245);
 
 input, textarea {
     padding: 5px;
-    font-size: 12px;
+    font-size: 1rem;
 }
 
 .container {
@@ -54,13 +57,15 @@ input, textarea {
     grid-template-columns: max-content 1fr;
     grid-template-rows: 1fr;
     
-    column-gap: 20px;
+    // column-gap: 20px;
+    column-gap: 1rem;
 
     #image-upload-container {
         padding: 10px;
         grid-template-columns: auto;
         grid-template-rows: auto max-content;
-        row-gap: 10px;
+        // row-gap: 10px;
+        row-gap: 1rem;
         box-shadow: 0px 0px 10px -4px gray;
         border-radius: 5px;
         background-color: rgb(245, 245, 245);
@@ -125,7 +130,8 @@ input, textarea {
             display: grid;
             grid-auto-flow: column;
             grid-auto-columns: 1fr;
-            column-gap: 10px;
+            // column-gap: 10px;
+            column-gap: 2rem;
             justify-items: center;
 
             .btn#clear-btn {
@@ -164,13 +170,14 @@ input, textarea {
     #image-generation-details-container {
         display: grid;
         row-gap: 20px;
-        font-size: 12px;
+        font-size: 1rem;
         grid-template-rows: max-content;
         align-content: baseline;
 
         .details-grid {
             display: grid;
-            column-gap: 10px;
+            // column-gap: 10px;
+            column-gap: 2rem;
             row-gap: 5px;
             background-color: $bg-container-lite;
             box-shadow: 0px 0px 10px -4px gray;
@@ -192,7 +199,6 @@ input, textarea {
             }
 
             &#grid-2 {
-                // grid-template-columns: auto 200px 150px;
                 grid-template-columns: auto;
                 grid-template-rows: auto auto;
 
@@ -220,23 +226,34 @@ input, textarea {
             }
 
             &#grid-3 {
-                grid-auto-flow: column;
-                grid-auto-columns: auto;
-                grid-template-columns: max-content auto;
+                grid-template-columns: auto;
+                grid-template-rows: auto auto;
+                align-content: baseline;
 
-                .inner-col:nth-child(1) {
-                    row-gap: 5px;
-                    .detail-label {
-                        width: 70px;
+                div#sampler-scheduler {
+                    display: grid;
+                    column-gap: 1rem;
+                    row-gap: 1rem;
+                    grid-template-columns: auto auto;
+                    justify-content: left;
+
+                    .detail-value {
+                        width: 15rem;
                     }
                 }
-                .inner-col:nth-child(2) {
-                    column-gap: 10px;
-                    grid-auto-flow: column;
-                    grid-auto-columns: auto;
-                    align-items: start;
-                }
 
+                div#cfg-steps-seed {
+                    display: grid;
+                    column-gap: 1rem;
+                    row-gap: 1rem;
+                    grid-template-columns: max-content max-content auto;
+
+                    #cfg-scale > .detail-value, #steps > .detail-value {
+                        width: 5rem;
+                        text-align: left;
+                    }
+
+                }
             }
 
             &#grid-4 {
@@ -286,11 +303,11 @@ input, textarea {
                     }
     
                     #width.detail-wrapper, #height.detail-wrapper {
-                        column-gap: 5px;
-                        grid-template-columns: 12px auto;
+                        // column-gap: 0.5rem;
+                        grid-template-columns: 4rem auto;
 
                         .detail-label {
-                            // width: 45px;
+
                         }
                         .detail-value {
                             width: 70px;
@@ -311,7 +328,8 @@ input, textarea {
                         align-content: start;
                         justify-content: left;
                         align-items: center;
-                        column-gap: 5px;
+                        // column-gap: 5px;
+                        column-gap: 1rem;
 
                         div:nth-child(1) {
                             font-weight: bold;
@@ -370,7 +388,8 @@ input, textarea {
                             justify-content: left;
                             grid-row: 1 / span 1;
                             grid-column: 1 / span 2;
-                            column-gap: 5px;
+                            // column-gap: 5px;
+                            column-gap: 1rem;
 
                             .orientation-btn {
                                 border: 1px solid #000;
@@ -424,7 +443,7 @@ input, textarea {
             &.hz {
                 grid-template-columns: max-content max-content;
                 grid-template-rows: max-content;
-                column-gap: 5px;
+                column-gap: 0.5rem;
             }
             
             .detail-label {
@@ -438,11 +457,6 @@ input, textarea {
                 border-radius: 2px;
                 padding: 1px;
 
-                &.steps, &.cfg-scale {
-                    width: 75px;
-                    // text-align: center;
-                    text-align: left;
-                }
             }
 
         }

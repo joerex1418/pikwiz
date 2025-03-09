@@ -37,7 +37,7 @@
 
         <div id="grid-1" class="details-grid">
             <div id="model-checkpoint" class="detail-wrapper">
-                <div class="detail-label">Model/Checkpoint:</div>
+                <div class="detail-label">Checkpoint:</div>
                 <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
             </div>
             <div id="vae" class="detail-wrapper">
@@ -49,8 +49,7 @@
         <div id="grid-2" class="details-grid">
             <div id="positive-prompt" class="detail-wrapper">
                 <div class="detail-label">Positive Prompt:</div>
-                <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false">(ultra high res:1.4), (masterpiece), (beautiful lighting:1.4) , lush green forest, Mountains, Bright sunlight illuminates the crystal-clear water, (deep underwater), anime, half above water and half below water, (clear underwater), beautiful sky with clouds and smoke, tropical fish, depth
-                </textarea>
+                <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
             
             <div id="negative-prompt" class="detail-wrapper">
@@ -75,34 +74,33 @@
         </div>
 
         <div id="grid-3" class="details-grid">
-            <div class="inner-col">
+            <div id="sampler-scheduler">
+                <div id="sampler" class="detail-wrapper">
+                    <div class="detail-label">Sampler:</div>
+                    <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="text">
+                </div>
+    
+                <div id="schedule-type" class="detail-wrapper">
+                    <div class="detail-label">Scheduler:</div>
+                    <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="text">
+                </div>
+            </div>
+
+            <div id="cfg-steps-seed">
+                <div id="cfg-scale" class="detail-wrapper hz">
+                    <div class="detail-label">CFG:</div>
+                    <input class="detail-value cfg-scale" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
+                </div>
+                
                 <div id="steps" class="detail-wrapper hz">
                     <div class="detail-label">Steps:</div>
                     <input class="detail-value steps" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
                 </div>
-    
-                <div id="cfg-scale" class="detail-wrapper hz">
-                    <div class="detail-label">CFG Scale:</div>
-                    <input class="detail-value cfg-scale" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
-                </div>
-    
+
                 <div id="seed" class="detail-wrapper hz">
                     <div class="detail-label">Seed:</div>
                     <input class="detail-value seed" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
                 </div>
-            </div>
-
-            <div class="inner-col">
-                <div id="sampler" class="detail-wrapper">
-                    <div class="detail-label">Sampler:</div>
-                    <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
-                </div>
-    
-                <div id="schedule-type" class="detail-wrapper">
-                    <div class="detail-label">Schedule Type:</div>
-                    <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
-                </div>
-
             </div>
 
         </div>
@@ -117,12 +115,12 @@
 
             <div id="size-inputs-wrapper">
                 <div id="width" class="detail-wrapper hz">
-                    <div class="detail-label">W:</div>
+                    <div class="detail-label">Width:</div>
                     <input class="detail-value width" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number" data-originalValue="">
                 </div>
     
                 <div id="height" class="detail-wrapper hz">
-                    <div class="detail-label">H:</div>
+                    <div class="detail-label">Height:</div>
                     <input class="detail-value height" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number" data-originalValue="">
                 </div>
             </div>
@@ -131,7 +129,7 @@
             <div id="resize-tools-wrapper" class="detail-wrapper">
                 <div id="resize-tool-select-btn-bar" class="btn-bar">
                     <div id="scale-resize-btn-option" class="tool-select-btn btn active" data-prefix="scale">Upscale/Downscale</div>
-                    <div id="ar-resize-btn-option" class="tool-select-btn btn" data-prefix="ar">Aspect Ratios & Resolutions</div>
+                    <div id="ar-resize-btn-option" class="tool-select-btn btn" data-prefix="ar">Resolutions</div>
                 </div>
 
                 <div id="scale-original-wrapper" class="detail-wrapper active" data-prefix="scale">
@@ -141,7 +139,6 @@
                 <div id="choose-ar-res-wrapper" class="detail-wrapper" data-prefix="ar">
                     <div id="orientation-selection-btn-bar"></div>
                 </div>
-
 
             </div>
 
