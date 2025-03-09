@@ -176,8 +176,7 @@ input, textarea {
 
         .details-grid {
             display: grid;
-            // column-gap: 10px;
-            column-gap: 2rem;
+            column-gap: 1rem;
             row-gap: 5px;
             background-color: $bg-container-lite;
             box-shadow: 0px 0px 10px -4px gray;
@@ -226,11 +225,16 @@ input, textarea {
             }
 
             &#grid-3 {
-                grid-template-columns: auto;
-                grid-template-rows: auto auto;
+                // grid-template-columns: auto;
+                // grid-template-rows: auto auto;
+                grid-template-columns: auto auto;
                 align-content: baseline;
 
                 div#sampler-scheduler {
+                    background-color: rgb(177, 183, 255);
+                    grid-column: 2 / span 1;
+                    grid-row: 1 / span 1;
+
                     display: grid;
                     column-gap: 1rem;
                     row-gap: 1rem;
@@ -242,7 +246,48 @@ input, textarea {
                     }
                 }
 
+                div#size-inputs-wrapper {
+                    background-color: rgb(244, 169, 169);
+                    grid-column: 1 / span 1;
+                    grid-row: 1 / span 2;
+                    
+                    display: grid;
+                    align-items: center;
+                    align-content: center;
+
+                    #width-height {
+                        display: grid;
+                        align-items: center;
+                        align-content: center;
+                        row-gap: 0.5rem;
+                        
+                        #width.detail-wrapper {
+                            grid-row: 1 / span 1;
+                            grid-column: 1 / span 1;
+                            // grid-template-columns: max-content auto;
+                        }
+        
+                        #height.detail-wrapper {
+                            grid-row: 2 / span 1;
+                            grid-column: 1 / span 1;
+                            // grid-template-columns: max-content auto;
+                        }
+        
+                        #width.detail-wrapper, #height.detail-wrapper {
+                            // .detail-label {}
+                            .detail-value {
+                                // width: 8rem;
+                            }
+                        }
+                    }
+
+                }
+
                 div#cfg-steps-seed {
+                    background-color: rgb(205, 255, 205);
+                    grid-column: 2 / span 1;
+                    grid-row: 2 / span 1;
+
                     display: grid;
                     column-gap: 1rem;
                     row-gap: 1rem;
@@ -254,11 +299,6 @@ input, textarea {
                     }
 
                 }
-            }
-
-            &#grid-4 {
-                grid-auto-flow: column;
-                grid-auto-columns: max-content;
             }
 
             &#grid-5 {
@@ -437,7 +477,8 @@ input, textarea {
 
         .detail-wrapper {
             display: grid;
-            grid-template-rows: max-content auto;
+            // grid-template-rows: max-content auto;
+            grid-template-rows: max-content max-content;
             row-gap: 5px;
             
             &.hz {
