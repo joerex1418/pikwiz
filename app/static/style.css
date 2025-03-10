@@ -40,8 +40,8 @@
               #main #image-upload-container #image-display-container {
                 position: relative;
                 cursor: pointer;
-                width: 400px;
-                height: 400px;
+                width: 500px;
+                height: 500px;
                 background-color: #ccc;
                 color: #000;
                 justify-content: center;
@@ -103,14 +103,14 @@
                 display: grid;
                 column-gap: 1rem;
                 row-gap: 5px;
-                background-color: whitesmoke;
+                background-color: #e6e6e6;
                 box-shadow: 0px 0px 10px -4px gray;
                 padding: 5px;
                 border-radius: 3px; }
                 #main #image-generation-details-container .details-grid .inner-col {
                   display: grid; }
                   #main #image-generation-details-container .details-grid#grid-1 {
-                    grid-template-columns: 1fr 1fr; }
+                    grid-template-columns: auto; }
                 #main #image-generation-details-container .details-grid#grid-2 {
                   grid-template-columns: auto;
                   grid-template-rows: auto auto; }
@@ -118,37 +118,28 @@
                     grid-row: 1 / span 1;
                     grid-column: 1 / span 1; }
                     #main #image-generation-details-container .details-grid#grid-2 #positive-prompt textarea {
-                      height: 85px; }
+                      height: 6rem; }
                   #main #image-generation-details-container .details-grid#grid-2 #negative-prompt {
                     grid-row: 2 / span 1;
                     grid-column: 1 / span 1; }
                     #main #image-generation-details-container .details-grid#grid-2 #negative-prompt textarea {
-                      height: 85px; }
+                      height: 6rem; }
                   #main #image-generation-details-container .details-grid#grid-2 #loras,
                   #main #image-generation-details-container .details-grid#grid-2 #weighted-tags {
                     display: none; }
                 #main #image-generation-details-container .details-grid#grid-3 {
-                  grid-template-columns: auto auto;
+                  grid-template-columns: max-content max-content auto;
                   align-content: baseline; }
-                  #main #image-generation-details-container .details-grid#grid-3 div#sampler-scheduler {
-                    background-color: #b1b7ff;
-                    grid-column: 2 / span 1;
-                    grid-row: 1 / span 1;
-                    display: grid;
-                    column-gap: 1rem;
-                    row-gap: 1rem;
-                    grid-template-columns: auto auto;
-                    justify-content: left; }
-                    #main #image-generation-details-container .details-grid#grid-3 div#sampler-scheduler .detail-value {
-                      width: 15rem; }
                   #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper {
-                    background-color: #f4a9a9;
                     grid-column: 1 / span 1;
                     grid-row: 1 / span 2;
+                    column-gap: 0.5rem;
                     display: grid;
                     align-items: center;
-                    align-content: center; }
+                    align-content: center;
+                    grid-template-columns: max-content auto; }
                     #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper #width-height {
+                      grid-column: 1 / span 1;
                       display: grid;
                       align-items: center;
                       align-content: center;
@@ -159,9 +150,79 @@
                         #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper #width-height #height.detail-wrapper {
                           grid-row: 2 / span 1;
                           grid-column: 1 / span 1; }
-                  #main #image-generation-details-container .details-grid#grid-3 div#cfg-steps-seed {
-                    background-color: #cdffcd;
+                          #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper #width-height #width.detail-wrapper .detail-value,
+                          #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper #width-height #height.detail-wrapper .detail-value {
+                            width: 8rem; }
+                    #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper #swap-wrapper {
+                      display: grid;
+                      align-content: center;
+                      grid-column: 2 / span 1; }
+                      #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper #swap-wrapper .btn {
+                        padding: 5px;
+                        background-color: #666; }
+                        #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper #swap-wrapper .btn:hover {
+                          background-color: #595959; }
+                          #main #image-generation-details-container .details-grid#grid-3 div#size-inputs-wrapper #swap-wrapper .btn svg {
+                            width: 20px;
+                            fill: #fff;
+                            stroke: #fff;
+                            stroke-width: 1px; }
+                  #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid {
                     grid-column: 2 / span 1;
+                    grid-row: 1 / span 2;
+                    column-gap: 0.5rem;
+                    display: grid;
+                    grid-template-columns: auto;
+                    grid-template-rows: auto; }
+                    #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper {
+                      position: relative;
+                      display: grid; }
+                      #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper .btn#select-resolution-btn {
+                        align-self: center; }
+                        #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper #select-resolution {
+                          cursor: pointer;
+                          position: absolute;
+                          display: block;
+                          top: 0;
+                          left: 8rem;
+                          position: absolute;
+                          background-color: white;
+                          font-size: 1rem;
+                          height: 18rem;
+                          width: 14rem;
+                          overflow-y: auto;
+                          padding: 0.2rem;
+                          box-shadow: 0px 0px 10px -4px gray;
+                          border-radius: 0.3rem; }
+                          #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper #select-resolution.hidden {
+                            display: none; }
+                            #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper #select-resolution .resolution-group .orientation-header {
+                              font-weight: bold;
+                              padding: 0.2rem; }
+                              #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper #select-resolution .resolution-group .size-value {
+                                display: grid;
+                                grid-auto-flow: column;
+                                justify-content: space-between;
+                                padding: 0.5rem;
+                                text-indent: 0.5rem;
+                                border-radius: 0.8rem; }
+                                #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper #select-resolution .resolution-group .size-value.selected {
+                                  background-color: #b5ffba;
+                                  color: #005606; }
+                                  #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper #select-resolution .resolution-group .size-value:hover {
+                                    background-color: #dee4ff;
+                                    color: #2c53ff; }
+                                    #main #image-generation-details-container .details-grid#grid-3 div#resolution-select-grid div#select-resolution-wrapper #select-resolution .resolution-group .size-value span:nth-child(2) {
+                                      font-weight: bold; }
+                  #main #image-generation-details-container .details-grid#grid-3 div#sampler-scheduler {
+                    grid-column: 3 / span 1;
+                    grid-row: 1 / span 1;
+                    display: grid;
+                    column-gap: 1rem;
+                    row-gap: 1rem;
+                    grid-template-columns: auto auto; }
+                  #main #image-generation-details-container .details-grid#grid-3 div#cfg-steps-seed {
+                    grid-column: 3 / span 1;
                     grid-row: 2 / span 1;
                     display: grid;
                     column-gap: 1rem;
@@ -169,104 +230,10 @@
                     grid-template-columns: max-content max-content auto; }
                     #main #image-generation-details-container .details-grid#grid-3 div#cfg-steps-seed #cfg-scale > .detail-value,
                     #main #image-generation-details-container .details-grid#grid-3 div#cfg-steps-seed #steps > .detail-value {
-                      width: 5rem;
+                      width: 4rem;
                       text-align: left; }
-                #main #image-generation-details-container .details-grid#grid-5 {
-                  grid-template-columns: max-content max-content auto;
-                  grid-template-rows: max-content; }
-                  #main #image-generation-details-container .details-grid#grid-5 #swap-wrapper {
-                    display: grid;
-                    align-content: center;
-                    grid-row: 1 / span 1;
-                    grid-column: 1 / span 1; }
-                    #main #image-generation-details-container .details-grid#grid-5 #swap-wrapper .btn {
-                      padding: 5px;
-                      background-color: #666; }
-                      #main #image-generation-details-container .details-grid#grid-5 #swap-wrapper .btn:hover {
-                        background-color: #595959; }
-                        #main #image-generation-details-container .details-grid#grid-5 #swap-wrapper .btn svg {
-                          width: 20px;
-                          fill: #fff;
-                          stroke: #fff;
-                          stroke-width: 1px; }
-                  #main #image-generation-details-container .details-grid#grid-5 #size-inputs-wrapper {
-                    display: grid;
-                    align-items: center;
-                    align-content: center;
-                    row-gap: 5px; }
-                    #main #image-generation-details-container .details-grid#grid-5 #size-inputs-wrapper #width.detail-wrapper {
-                      grid-row: 1 / span 1;
-                      grid-column: 1 / span 1; }
-                      #main #image-generation-details-container .details-grid#grid-5 #size-inputs-wrapper #height.detail-wrapper {
-                        grid-row: 2 / span 1;
-                        grid-column: 1 / span 1; }
-                        #main #image-generation-details-container .details-grid#grid-5 #size-inputs-wrapper #width.detail-wrapper,
-                        #main #image-generation-details-container .details-grid#grid-5 #size-inputs-wrapper #height.detail-wrapper {
-                          grid-template-columns: 4rem auto; }
-                          #main #image-generation-details-container .details-grid#grid-5 #size-inputs-wrapper #width.detail-wrapper .detail-value,
-                          #main #image-generation-details-container .details-grid#grid-5 #size-inputs-wrapper #height.detail-wrapper .detail-value {
-                            width: 70px; }
-                  #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper {
-                    grid-template-columns: auto;
-                    grid-template-rows: max-content auto; }
-                    #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #resize-tool-select-btn-bar.btn-bar {
-                      display: grid;
-                      grid-row: 1 / span 1;
-                      grid-column: 1 / span 1;
-                      grid-auto-flow: column;
-                      align-content: start;
-                      justify-content: left;
-                      align-items: center;
-                      column-gap: 1rem; }
-                      #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #resize-tool-select-btn-bar.btn-bar div:nth-child(1) {
-                        font-weight: bold;
-                        grid-row: 1 / span 1;
-                        grid-column: 1 / span 2; }
-                        #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #resize-tool-select-btn-bar.btn-bar .btn {
-                          font-weight: normal;
-                          border: 1px solid #1755ff;
-                          background-color: transparent;
-                          color: #1755ff;
-                          padding: 3px 10px; }
-                          #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #resize-tool-select-btn-bar.btn-bar .btn.active {
-                            background-color: #1755ff;
-                            color: #fff; }
-                      #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #resize-tool-select-btn-bar.btn-bar #ar-resize-btn-option.btn {
-                        grid-row: 2 / span 1;
-                        grid-column: 2 / span 1; }
-                        #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #resize-tool-select-btn-bar.btn-bar #scale-resize-btn-option.btn {
-                          grid-row: 2 / span 1;
-                          grid-column: 1 / span 1; }
-                    #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #scale-original-wrapper {
-                      grid-template-columns: unset;
-                      grid-template-rows: unset; }
-                      #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #scale-original-wrapper .detail-value {
-                        background-color: #fff; }
-                    #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #choose-ar-res-wrapper {
-                      grid-template-columns: auto auto;
-                      grid-template-rows: auto auto; }
-                      #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #choose-ar-res-wrapper #orientation-selection-btn-bar.btn-bar {
-                        display: grid;
-                        grid-auto-flow: column;
-                        align-content: start;
-                        justify-content: left;
-                        grid-row: 1 / span 1;
-                        grid-column: 1 / span 2;
-                        column-gap: 1rem; }
-                        #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #choose-ar-res-wrapper #orientation-selection-btn-bar.btn-bar .orientation-btn {
-                          border: 1px solid #000;
-                          background-color: transparent;
-                          color: #000;
-                          padding: 3px 10px; }
-                          #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper #choose-ar-res-wrapper #orientation-selection-btn-bar.btn-bar .orientation-btn.active {
-                            background-color: #000;
-                            color: #fff; }
-                    #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper .detail-wrapper.active {
-                      display: grid;
-                      grid-row: 2 / span 1;
-                      grid-column: 1 / span 1; }
-                      #main #image-generation-details-container .details-grid#grid-5 #resize-tools-wrapper .detail-wrapper {
-                        display: none; }
+                #main #image-generation-details-container .details-grid#grid-4 {
+                  grid-template-columns: auto; }
                 #main #image-generation-details-container .details-grid#grid-last {
                   grid-auto-flow: column;
                   grid-auto-columns: max-content;
@@ -279,7 +246,7 @@
               #main #image-generation-details-container .detail-wrapper {
                 display: grid;
                 grid-template-rows: max-content max-content;
-                row-gap: 5px; }
+                row-gap: 0.2rem; }
                 #main #image-generation-details-container .detail-wrapper.hz {
                   grid-template-columns: max-content max-content;
                   grid-template-rows: max-content;
@@ -289,9 +256,9 @@
                     align-self: center; }
                     #main #image-generation-details-container .detail-wrapper .detail-value {
                       border: 1px solid #c7c7c7;
-                      background-color: #ededed;
-                      border-radius: 2px;
-                      padding: 1px; }
+                      background-color: #ffffff;
+                      border-radius: 0.5rem;
+                      padding: 0.2rem; }
 
 body.dark {
   background-color: #2f1f40 !important;

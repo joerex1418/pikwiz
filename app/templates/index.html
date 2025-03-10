@@ -28,47 +28,43 @@
     </div>
 
     <div id="image-generation-details-container" class="container">
-        <div id="grid-url" class="details-grid">
+        <div id="grid-url" class="details-grid" style="display: none;">
             <div id="imageurl" class="detail-wrapper">
-                <div class="detail-label">Image URL:</div>
+                <div class="detail-label">Image URL</div>
                 <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
             </div>
         </div>
 
         <div id="grid-1" class="details-grid">
             <div id="model-checkpoint" class="detail-wrapper">
-                <div class="detail-label">Checkpoint:</div>
-                <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
-            </div>
-            <div id="vae" class="detail-wrapper">
-                <div class="detail-label">VAE:</div>
+                <div class="detail-label">Checkpoint</div>
                 <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
             </div>
         </div>
 
         <div id="grid-2" class="details-grid">
             <div id="positive-prompt" class="detail-wrapper">
-                <div class="detail-label">Positive Prompt:</div>
+                <div class="detail-label">Positive Prompt</div>
                 <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
             
             <div id="negative-prompt" class="detail-wrapper">
-                <div class="detail-label">Negative Prompt:</div>
+                <div class="detail-label">Negative Prompt</div>
                 <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
 
-            <script>
+            <!-- <script>
                 document.querySelector("#positive-prompt textarea").value = document.querySelector("#positive-prompt textarea").value.trim();
                 document.querySelector("#negative-prompt textarea").value = document.querySelector("#negative-prompt textarea").value.trim();
-            </script>
+            </script> -->
 
             <div id="loras" class="detail-wrapper">
-                <div class="detail-label">Loras:</div>
+                <div class="detail-label">Loras</div>
                 <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
 
             <div id="weighted-tags" class="detail-wrapper">
-                <div class="detail-label">Weighted Tags:</div>
+                <div class="detail-label">Weighted Tags</div>
                 <textarea class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
             </div>
         </div>
@@ -78,86 +74,121 @@
             <div id="size-inputs-wrapper">
                 <div id="width-height">
                     <div id="width" class="detail-wrapper">
-                        <div class="detail-label">Width:</div>
+                        <div class="detail-label">Width</div>
                         <input class="detail-value width" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number" data-originalValue="">
                     </div>
         
                     <div id="height" class="detail-wrapper">
-                        <div class="detail-label">Height:</div>
+                        <div class="detail-label">Height</div>
                         <input class="detail-value height" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number" data-originalValue="">
                     </div>
                 </div>
-            </div>
-            <!-- -->
 
+                <div id="swap-wrapper">
+                    <div id="swap-orientation-btn" class="btn">
+                        {% include 'svgs/swap-icon.svg' %}
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- RESOLUTION SELECT GRID -->
+            <div id="resolution-select-grid">
+                <div id="select-resolution-wrapper">
+                    <div id="select-resolution-btn" class="btn">Choose Size</div>
+    
+                    <div id="select-resolution" class="hidden">
+                        <div class="resolution-group" data-orientation="Square">
+                            <div class="orientation-header">Square</div>
+                            <div class="size-value" data-dimensions="512x512" data-ratio="1:1"><span>512x512</span><span>1:1</span></div>
+                            <div class="size-value" data-dimensions="768x768" data-ratio="1:1"><span>768x768</span><span>1:1</span></div>
+                            <div class="size-value" data-dimensions="1024x1024" data-ratio="1:1"><span>1024x1024</span><span>1:1</span></div>
+                        </div>
+
+                        <div class="resolution-group" data-orientation="Portrait">
+                            <div class="orientation-header">Portrait</div>
+                            <div class="size-value" data-dimensions="512x768" data-ratio="2:3"><span>512x768</span><span>2:3</span></div>
+                            <div class="size-value" data-dimensions="768x1152" data-ratio="2:3"><span>768x1152</span><span>2:3</span></div>
+                            <div class="size-value" data-dimensions="832x1248" data-ratio="2:3"><span>832x1248</span><span>2:3</span></div>
+                            <div class="size-value" data-dimensions="768x1024" data-ratio="3:4"><span>768x1024</span><span>3:4</span></div>
+                            <div class="size-value" data-dimensions="864x1152" data-ratio="3:4"><span>864x1152</span><span>3:4</span></div>
+                            <div class="size-value" data-dimensions="880x1176" data-ratio="3:4"><span>880x1176</span><span>3:4</span></div>
+                            <div class="size-value" data-dimensions="896x1120" data-ratio="4:5"><span>896x1120</span><span>4:5</span></div>
+                            <div class="size-value" data-dimensions="912x1144" data-ratio="4:5"><span>912x1144</span><span>4:5</span></div>
+                            <div class="size-value" data-dimensions="512x896" data-ratio="4:7"><span>512x896</span><span>4:7</span></div>
+                            <div class="size-value" data-dimensions="640x1120" data-ratio="4:7"><span>640x1120</span><span>4:7</span></div>
+                            <div class="size-value" data-dimensions="768x1344" data-ratio="4:7"><span>768x1344</span><span>4:7</span></div>
+                            <div class="size-value" data-dimensions="448x576" data-ratio="7:9"><span>448x576</span><span>7:9</span></div>
+                            <div class="size-value" data-dimensions="896x1152" data-ratio="7:9"><span>896x1152</span><span>7:9</span></div>
+                            <div class="size-value" data-dimensions="416x608" data-ratio="9:13"><span>416x608</span><span>9:13</span></div>
+                            <div class="size-value" data-dimensions="832x1216" data-ratio="9:13"><span>832x1216</span><span>9:13</span></div>
+                            <div class="size-value" data-dimensions="512x912" data-ratio="9:16"><span>512x912</span><span>9:16</span></div>
+                            <div class="size-value" data-dimensions="768x1360" data-ratio="9:16"><span>768x1360</span><span>9:16</span></div>
+                        </div>
+                        
+                        <div class="resolution-group" data-orientation="Landscape">
+                            <div class="orientation-header">Landscape</div>
+                            <div class="size-value" data-dimensions="768x512" data-ratio="3:2"><span>768x512</span><span>3:2</span></div>
+                            <div class="size-value" data-dimensions="1152x768" data-ratio="3:2"><span>1152x768</span><span>3:2</span></div>
+                            <div class="size-value" data-dimensions="1248x832" data-ratio="3:2"><span>1248x832</span><span>3:2</span></div>
+                            <div class="size-value" data-dimensions="1024x768" data-ratio="4:3"><span>1024x768</span><span>4:3</span></div>
+                            <div class="size-value" data-dimensions="1152x864" data-ratio="4:3"><span>1152x864</span><span>4:3</span></div>
+                            <div class="size-value" data-dimensions="1176x880" data-ratio="4:3"><span>1176x880</span><span>4:3</span></div>
+                            <div class="size-value" data-dimensions="1120x896" data-ratio="5:4"><span>1120x896</span><span>5:4</span></div>
+                            <div class="size-value" data-dimensions="1144x912" data-ratio="5:4"><span>1144x912</span><span>5:4</span></div>
+                            <div class="size-value" data-dimensions="896x512" data-ratio="7:4"><span>896x512</span><span>7:4</span></div>
+                            <div class="size-value" data-dimensions="1120x640" data-ratio="7:4"><span>1120x640</span><span>7:4</span></div>
+                            <div class="size-value" data-dimensions="1344x768" data-ratio="7:4"><span>1344x768</span><span>7:4</span></div>
+                            <div class="size-value" data-dimensions="576x448" data-ratio="9:7"><span>576x448</span><span>9:7</span></div>
+                            <div class="size-value" data-dimensions="1152x896" data-ratio="9:7"><span>1152x896</span><span>9:7</span></div>
+                            <div class="size-value" data-dimensions="608x416" data-ratio="13:9"><span>608x416</span><span>13:9</span></div>
+                            <div class="size-value" data-dimensions="1216x832" data-ratio="13:9"><span>1216x832</span><span>13:9</span></div>
+                            <div class="size-value" data-dimensions="912x512" data-ratio="16:9"><span>912x512</span><span>16:9</span></div>
+                            <div class="size-value" data-dimensions="1360x768" data-ratio="16:9"><span>1360x768</span><span>16:9</span></div>
+                        </div>
+
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- SAMPLER / SCHEDULER -->
             <div id="sampler-scheduler">
                 <div id="sampler" class="detail-wrapper">
-                    <div class="detail-label">Sampler:</div>
+                    <div class="detail-label">Sampler</div>
                     <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="text">
                 </div>
     
                 <div id="schedule-type" class="detail-wrapper">
-                    <div class="detail-label">Scheduler:</div>
+                    <div class="detail-label">Scheduler</div>
                     <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="text">
                 </div>
             </div>
-
+            
+            <!-- CFG / STEPS / SEED -->
             <div id="cfg-steps-seed">
                 <div id="cfg-scale" class="detail-wrapper">
-                    <div class="detail-label">CFG:</div>
+                    <div class="detail-label">CFG</div>
                     <input class="detail-value cfg-scale" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
                 </div>
                 
                 <div id="steps" class="detail-wrapper">
-                    <div class="detail-label">Steps:</div>
+                    <div class="detail-label">Steps</div>
                     <input class="detail-value steps" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
                 </div>
 
                 <div id="seed" class="detail-wrapper">
-                    <div class="detail-label">Seed:</div>
+                    <div class="detail-label">Seed</div>
                     <input class="detail-value seed" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number">
                 </div>
             </div>
-
         </div>
 
-        <div id="grid-5" class="details-grid">
-            
-            <div id="swap-wrapper">
-                <div id="swap-orientation-btn" class="btn">
-                    <svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" transform="rotate(270)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g data-name="Layer 2"> <g data-name="swap"> <rect width="24" height="24" transform="rotate(-90 12 12)" opacity="0"></rect> <path d="M4 9h13l-1.6 1.2a1 1 0 0 0-.2 1.4 1 1 0 0 0 .8.4 1 1 0 0 0 .6-.2l4-3a1 1 0 0 0 0-1.59l-3.86-3a1 1 0 0 0-1.23 1.58L17.08 7H4a1 1 0 0 0 0 2z"></path> <path d="M20 16H7l1.6-1.2a1 1 0 0 0-1.2-1.6l-4 3a1 1 0 0 0 0 1.59l3.86 3a1 1 0 0 0 .61.21 1 1 0 0 0 .79-.39 1 1 0 0 0-.17-1.4L6.92 18H20a1 1 0 0 0 0-2z"></path> </g> </g> </g></svg>
-                </div>
+        <div id="grid-4" class="details-grid">
+            <div id="vae" class="detail-wrapper">
+                <div class="detail-label">VAE</div>
+                <input class="detail-value" autocomplete="off" autocorrect="off" spellcheck="false" type="text">
             </div>
-
-            <div id="size-inputs-wrapper">
-                <div id="width" class="detail-wrapper hz">
-                    <div class="detail-label">Width:</div>
-                    <input class="detail-value width" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number" data-originalValue="">
-                </div>
-    
-                <div id="height" class="detail-wrapper hz">
-                    <div class="detail-label">Height:</div>
-                    <input class="detail-value height" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number" data-originalValue="">
-                </div>
-            </div>
-
-            
-            <div id="resize-tools-wrapper" class="detail-wrapper">
-                <div id="resize-tool-select-btn-bar" class="btn-bar">
-                    <div id="scale-resize-btn-option" class="tool-select-btn btn active" data-prefix="scale">Upscale/Downscale</div>
-                    <div id="ar-resize-btn-option" class="tool-select-btn btn" data-prefix="ar">Resolutions</div>
-                </div>
-
-                <div id="scale-original-wrapper" class="detail-wrapper active" data-prefix="scale">
-                    <input class="detail-value scale-original" autocomplete="off" autocorrect="off" spellcheck="false" autofill="off" type="number" step="0.05" min="0.05" value="1.00">
-                </div>
-
-                <div id="choose-ar-res-wrapper" class="detail-wrapper" data-prefix="ar">
-                    <div id="orientation-selection-btn-bar"></div>
-                </div>
-
-            </div>
-
         </div>
 
         <div id="grid-last" class="details-grid">
@@ -165,8 +196,6 @@
             <div id="copy-raw-with-seed" class="btn">Copy Data (with Seed)</div>
         </div>
     </div>
-
-    <!-- <div id="image-generation-rawmeta-container" class="container"></div> -->
 
 </div>
 

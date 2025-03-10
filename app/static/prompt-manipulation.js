@@ -287,17 +287,29 @@ function changeWeight(promptElem, direction) {
             return;
         }
         
+        // console.log("location:", location)
+        
         let tagString = promptElem.value.slice(startIndex, endCommaIndex);
 
         let tagData = parseTag(tagString)
         
         let newWeight = direction == "up" ? tagData["weight"] + 0.05 : tagData["weight"] - 0.05;
-        let newWeightString = newWeight > 0 ? newWeight.toFixed(2) : "0";
-        if (newWeightString.split(".")[1] == "00") {
+        // let newWeightString = newWeight >= 0 ? newWeight.toFixed(2) : "0";
+        let newWeightString = undefined;
+        if (newWeight > 0) {
+            newWeightString = newWeight.toFixed(2)
+        } else {
+            newWeightString = "0"
+        }
+
+        if (newWeightString.split(".")[1] == "00" || newWeightString.split(".")[1] == "0") {
             newWeightString = newWeightString.split(".")[0]
-        } else if (newWeightString.charAt(newWeightString.length - 1) == "0") {
+        } 
+        else if (newWeightString.charAt(newWeightString.length - 1) == "0") {
             newWeightString = newWeight.toFixed(1)
         }
+
+        newWeightString = parseFloat(newWeightString) < 0 ? "0" : newWeightString;
 
         let bracketOpenChar = null;
         let bracketCloseChar = null;
@@ -314,8 +326,12 @@ function changeWeight(promptElem, direction) {
         let closeBracketCount = tagData["display"].split(bracketCloseChar).length - 1
 
 
-        // Generate new tag representation
-        if (tagData["type"] == "explicit") {
+        // ---- Generate new tag representation ---- //
+        // If the weight is '1', we can just display the tag without any weight syntax
+        if (newWeightString == "1") {
+            newTagString = tagData["tag"];
+        }
+        else if (tagData["type"] == "explicit") {
             newTagString = `(${tagData['tag']}:${newWeightString})`
         }
         else if (tagData["type"] == "implicit") {
@@ -337,15 +353,26 @@ function changeWeight(promptElem, direction) {
 
         // Build new prompt string
         let newPromptString = undefined;
-        let newStartIndex = null;
-        let newEndCommaIndex = null;
+        let newStartIndex = undefined;
+        let newEndCommaIndex = undefined;
         if (location == "start") {
-            newPromptString = `${newTagString}, ${promptElem.value.slice(endCommaIndex + 1).trim()}`;
             newStartIndex = 0;
-            newEndCommaIndex = newPromptString.indexOf(",");
+            let rightSide = promptElem.value.slice(endCommaIndex + 1).trim();
             
+            if (rightSide == "") {
+                newPromptString = newTagString;
+            } else {
+                newPromptString = `${newTagString}, ${rightSide}`;
+                newEndCommaIndex = newPromptString.indexOf(",");
+            }
+
             promptElem.value = newPromptString;
-            promptElem.setSelectionRange(newStartIndex, newEndCommaIndex);
+
+            if (newEndCommaIndex) {
+                promptElem.setSelectionRange(newStartIndex, newEndCommaIndex);
+            } else {
+                promptElem.setSelectionRange(newStartIndex, promptElem.value.length);
+            }
         } 
         else if (location == "middle") {
             newPromptString = `${promptElem.value.slice(0, startIndex - 1)}, ${newTagString}, ${promptElem.value.slice(endCommaIndex + 1).trim()}`;
@@ -369,6 +396,9 @@ function changeWeight(promptElem, direction) {
     }
 }
 
+/*
+TODO: Add button that converts all implicit weights to explicit weights
+*/
 
 function parseTag(tag) {
     if (typeof tag !== "string") {

@@ -40,7 +40,7 @@ def inject_dict_for_all_templates():
 
 @app.route("/")
 def index():
-    generate_resolution_json()
+    # generate_resolution_json()
     resolutions_json = load_resolution_json()
     
     square = [x for x in resolutions_json if x["orientation"] == "square"]

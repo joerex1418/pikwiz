@@ -6,7 +6,7 @@ document.getElementById("image-display-container").addEventListener("click", fun
 })
 
 function resetScaleAdjust() {
-    document.querySelector("#scale-original-wrapper .detail-value").value = 1.0
+    // document.querySelector("#scale-original-wrapper .detail-value").value = 1.0
 }
 
 function handleUpload(e) {
@@ -229,6 +229,10 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         document.getElementById("height").querySelector(".detail-value").value = height;
         document.querySelector("#height .detail-value").dataset["originalValue"] = height;
 
+        if (document.querySelector(`.size-value[data-dimensions="${size}"]`)) {
+            document.querySelector(`.size-value[data-dimensions="${size}"]`).classList.add("selected")
+        }
+
         // Reset scale adjustment to 1.00 by default
         resetScaleAdjust();
 
@@ -248,80 +252,51 @@ document.getElementById("swap-orientation-btn").addEventListener("click", functi
     setInputWidth(height)
 })
 
+
 // ----------------------------- //
-// Scale Event
+// Select Resolution Dropdown
 // ----------------------------- //
-document.querySelector("#scale-original-wrapper .detail-value").addEventListener("change", function(e) {
-    const widthElem = document.querySelector("#width .detail-value");
-    const heightElem = document.querySelector("#height .detail-value");
+const selectResDropdown = document.getElementById("select-resolution");
+const selectResBtn = document.getElementById("select-resolution-btn");
 
-    if (widthElem.value && heightElem.value) {
-        let scaleFactor = parseFloat(document.querySelector("#scale-original-wrapper .detail-value").value)
-        let originalWidth = widthElem.dataset["originalValue"];
-        let originalHeight = heightElem.dataset["originalValue"];
+selectResBtn.addEventListener("click", function(e) {
+    selectResDropdown.classList.toggle("hidden")
+    
+})
 
-        widthElem.value = originalWidth * scaleFactor;
-        heightElem.value = originalHeight * scaleFactor;
-
+document.body.addEventListener("click", function(e) {
+    if ( !e.target.closest("#select-resolution") && !e.target.closest("#select-resolution-btn") ) {
+        selectResDropdown.classList.add("hidden")
     }
 })
 
-// ----------------------------- //
-// Select Resize Method
-// ----------------------------- //
-document.getElementById("resize-tool-select-btn-bar").addEventListener("click", function(e) {
-    const resizeToolsWrapper = document.getElementById("resize-tools-wrapper");
-
-    if (e.target.classList.contains("tool-select-btn")) {
-        let selectedPrefix = e.target.dataset["prefix"];
+selectResDropdown.addEventListener("click", function(e) {
+    if ( e.target.closest(".size-value") ) {
+        const selectedElem = e.target.closest(".size-value");
+        const orientation = selectedElem.closest(".resolution-group").dataset["orientation"];
         
-        resizeToolsWrapper.querySelector(`.btn[data-prefix="${selectedPrefix}"]`).classList.add("active");
-        resizeToolsWrapper.querySelector(`.btn:not([data-prefix="${selectedPrefix}"])`).classList.remove("active");
+        let dimensions = selectedElem.dataset["dimensions"];
+        let width = dimensions.split("x")[0];
+        let height = dimensions.split("x")[1];
+        let ratio = selectedElem.dataset["ratio"];
 
-        resizeToolsWrapper.querySelector(`.detail-wrapper[data-prefix="${selectedPrefix}"]`).classList.add("active");
-        resizeToolsWrapper.querySelector(`.detail-wrapper:not([data-prefix="${selectedPrefix}"])`).classList.remove("active");
-    }
-})
+        document.querySelector("#width .detail-value").value = parseInt(width);
+        document.querySelector("#height .detail-value").value = parseInt(height);
 
-// ----------------------------- //
-// Select Orientation
-// ----------------------------- //
-document.getElementById("orientation-selection-btn-bar").addEventListener("click", function(e) {
-    const orientationBtnBar = document.getElementById("orientation-selection-btn-bar");
+        selectResDropdown.classList.add("hidden");
 
-    if (e.target.classList.contains("orientation-btn")) {
-        let selectedOrientation = e.target.dataset["orientation"]
-        
-        document.querySelectorAll(".orientation-btn").forEach(oriBtn => {
-            if (oriBtn == e.target) {
-                oriBtn.classList.add("active")
+        document.querySelectorAll(".size-value").forEach(elem => {
+            if (elem == selectedElem) {
+                elem.classList.add("selected");
             } else {
-                oriBtn.classList.remove("active")
+                elem.classList.remove("selected");
             }
         })
 
-        if (selectedOrientation == "square") {
-            // Change Resolution Buttons
-            document.querySelectorAll(`.res-btn[data-orientation="square"]`).forEach(resBtn => {
-                resBtn.classList.add("active")
-            })
-            document.querySelectorAll(`.res-btn[data-orientation="portrait"], .res-btn[data-orientation="landscape"]`).forEach(resBtn => {
-                resBtn.classList.remove("active")
-            })
-        } else {
-            // Change Resolution Buttons
-            document.querySelectorAll(`.res-btn[data-orientation="square"]`).forEach(resBtn => {
-                resBtn.classList.remove("active")
-            })
-            document.querySelectorAll(`.res-btn[data-orientation="portrait"], .res-btn[data-orientation="landscape"]`).forEach(resBtn => {
-                resBtn.classList.add("active")
-                resBtn.dataset["orientation"] = selectedOrientation
-                resBtn.textContent = resBtn.dataset[selectedOrientation]
-            })
-        }
-
     }
 })
+
+
 
 // ----------------------------- //
 // Copying data to clipboard
@@ -334,7 +309,7 @@ function genDataToRawString(randomSeed=true) {
     let sampler = document.getElementById("sampler").querySelector(".detail-value").value;
     let scheduleType = document.getElementById("schedule-type").querySelector(".detail-value").value;
 
-    let samplerSched = `${sampler} ${scheduleType}`
+    let samplerSched = `${sampler} ${scheduleType}`.trim()
 
     let modelCheckpoint = document.getElementById("model-checkpoint").querySelector(".detail-value").value;
     let vaeModel = document.getElementById("vae").querySelector(".detail-value").value;

@@ -1,1 +1,497 @@
-[{"pixels": 262144, "aspectRatio": "1:1", "resolution": "512x512", "width": 512, "height": 512, "orientation": "square", "recommendedModel": null}, {"pixels": 589824, "aspectRatio": "1:1", "resolution": "768x768", "width": 768, "height": 768, "orientation": "square", "recommendedModel": null}, {"pixels": 1048576, "aspectRatio": "1:1", "resolution": "1024x1024", "width": 1024, "height": 1024, "orientation": "square", "recommendedModel": "SDXL"}, {"pixels": 294912, "aspectRatio": "1:2", "resolution": "384x768", "width": 384, "height": 768, "orientation": "portrait", "recommendedModel": null}, {"pixels": 294912, "aspectRatio": "2:1", "resolution": "768x384", "width": 768, "height": 384, "orientation": "landscape", "recommendedModel": null}, {"pixels": 524288, "aspectRatio": "1:2", "resolution": "512x1024", "width": 512, "height": 1024, "orientation": "portrait", "recommendedModel": null}, {"pixels": 524288, "aspectRatio": "2:1", "resolution": "1024x512", "width": 1024, "height": 512, "orientation": "landscape", "recommendedModel": null}, {"pixels": 262144, "aspectRatio": "1:4", "resolution": "256x1024", "width": 256, "height": 1024, "orientation": "portrait", "recommendedModel": null}, {"pixels": 262144, "aspectRatio": "4:1", "resolution": "1024x256", "width": 1024, "height": 256, "orientation": "landscape", "recommendedModel": null}, {"pixels": 589824, "aspectRatio": "1:4", "resolution": "384x1536", "width": 384, "height": 1536, "orientation": "portrait", "recommendedModel": null}, {"pixels": 589824, "aspectRatio": "4:1", "resolution": "1536x384", "width": 1536, "height": 384, "orientation": "landscape", "recommendedModel": null}, {"pixels": 1048576, "aspectRatio": "1:4", "resolution": "512x2048", "width": 512, "height": 2048, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1048576, "aspectRatio": "4:1", "resolution": "2048x512", "width": 2048, "height": 512, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 393216, "aspectRatio": "2:3", "resolution": "512x768", "width": 512, "height": 768, "orientation": "portrait", "recommendedModel": null}, {"pixels": 393216, "aspectRatio": "3:2", "resolution": "768x512", "width": 768, "height": 512, "orientation": "landscape", "recommendedModel": null}, {"pixels": 884736, "aspectRatio": "2:3", "resolution": "768x1152", "width": 768, "height": 1152, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 884736, "aspectRatio": "3:2", "resolution": "1152x768", "width": 1152, "height": 768, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 1038336, "aspectRatio": "2:3", "resolution": "832x1248", "width": 832, "height": 1248, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1038336, "aspectRatio": "3:2", "resolution": "1248x832", "width": 1248, "height": 832, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 442368, "aspectRatio": "3:4", "resolution": "576x768", "width": 576, "height": 768, "orientation": "portrait", "recommendedModel": null}, {"pixels": 442368, "aspectRatio": "4:3", "resolution": "768x576", "width": 768, "height": 576, "orientation": "landscape", "recommendedModel": null}, {"pixels": 786432, "aspectRatio": "3:4", "resolution": "768x1024", "width": 768, "height": 1024, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 786432, "aspectRatio": "4:3", "resolution": "1024x768", "width": 1024, "height": 768, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 995328, "aspectRatio": "3:4", "resolution": "864x1152", "width": 864, "height": 1152, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 995328, "aspectRatio": "4:3", "resolution": "1152x864", "width": 1152, "height": 864, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 1034880, "aspectRatio": "3:4", "resolution": "880x1176", "width": 880, "height": 1176, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1034880, "aspectRatio": "4:3", "resolution": "1176x880", "width": 1176, "height": 880, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 327680, "aspectRatio": "4:5", "resolution": "512x640", "width": 512, "height": 640, "orientation": "portrait", "recommendedModel": null}, {"pixels": 327680, "aspectRatio": "5:4", "resolution": "640x512", "width": 640, "height": 512, "orientation": "landscape", "recommendedModel": null}, {"pixels": 737280, "aspectRatio": "4:5", "resolution": "768x960", "width": 768, "height": 960, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 737280, "aspectRatio": "5:4", "resolution": "960x768", "width": 960, "height": 768, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 1003520, "aspectRatio": "4:5", "resolution": "896x1120", "width": 896, "height": 1120, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1003520, "aspectRatio": "5:4", "resolution": "1120x896", "width": 1120, "height": 896, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 1043328, "aspectRatio": "4:5", "resolution": "912x1144", "width": 912, "height": 1144, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1043328, "aspectRatio": "5:4", "resolution": "1144x912", "width": 1144, "height": 912, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 258048, "aspectRatio": "4:7", "resolution": "384x672", "width": 384, "height": 672, "orientation": "portrait", "recommendedModel": null}, {"pixels": 258048, "aspectRatio": "7:4", "resolution": "672x384", "width": 672, "height": 384, "orientation": "landscape", "recommendedModel": null}, {"pixels": 458752, "aspectRatio": "4:7", "resolution": "512x896", "width": 512, "height": 896, "orientation": "portrait", "recommendedModel": null}, {"pixels": 458752, "aspectRatio": "7:4", "resolution": "896x512", "width": 896, "height": 512, "orientation": "landscape", "recommendedModel": null}, {"pixels": 716800, "aspectRatio": "4:7", "resolution": "640x1120", "width": 640, "height": 1120, "orientation": "portrait", "recommendedModel": null}, {"pixels": 716800, "aspectRatio": "7:4", "resolution": "1120x640", "width": 1120, "height": 640, "orientation": "landscape", "recommendedModel": null}, {"pixels": 1032192, "aspectRatio": "4:7", "resolution": "768x1344", "width": 768, "height": 1344, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1032192, "aspectRatio": "7:4", "resolution": "1344x768", "width": 1344, "height": 768, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 983040, "aspectRatio": "5:12", "resolution": "640x1536", "width": 640, "height": 1536, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 983040, "aspectRatio": "12:5", "resolution": "1536x640", "width": 1536, "height": 640, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 1032192, "aspectRatio": "7:9", "resolution": "896x1152", "width": 896, "height": 1152, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1032192, "aspectRatio": "9:7", "resolution": "1152x896", "width": 1152, "height": 896, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 252928, "aspectRatio": "9:13", "resolution": "416x608", "width": 416, "height": 608, "orientation": "portrait", "recommendedModel": null}, {"pixels": 252928, "aspectRatio": "13:9", "resolution": "608x416", "width": 608, "height": 416, "orientation": "landscape", "recommendedModel": null}, {"pixels": 1011712, "aspectRatio": "9:13", "resolution": "832x1216", "width": 832, "height": 1216, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1011712, "aspectRatio": "13:9", "resolution": "1216x832", "width": 1216, "height": 832, "orientation": "landscape", "recommendedModel": "SDXL"}, {"pixels": 466944, "aspectRatio": "9:16", "resolution": "512x912", "width": 512, "height": 912, "orientation": "portrait", "recommendedModel": "SD15"}, {"pixels": 466944, "aspectRatio": "16:9", "resolution": "912x512", "width": 912, "height": 512, "orientation": "landscape", "recommendedModel": "SD15"}, {"pixels": 1044480, "aspectRatio": "9:16", "resolution": "768x1360", "width": 768, "height": 1360, "orientation": "portrait", "recommendedModel": "SDXL"}, {"pixels": 1044480, "aspectRatio": "16:9", "resolution": "1360x768", "width": 1360, "height": 768, "orientation": "landscape", "recommendedModel": "SDXL"}]
+[
+    {
+        "pixels": 262144,
+        "aspectRatio": "1:1",
+        "resolution": "512x512",
+        "width": 512,
+        "height": 512,
+        "orientation": "square",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 589824,
+        "aspectRatio": "1:1",
+        "resolution": "768x768",
+        "width": 768,
+        "height": 768,
+        "orientation": "square",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 1048576,
+        "aspectRatio": "1:1",
+        "resolution": "1024x1024",
+        "width": 1024,
+        "height": 1024,
+        "orientation": "square",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 294912,
+        "aspectRatio": "1:2",
+        "resolution": "384x768",
+        "width": 384,
+        "height": 768,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 294912,
+        "aspectRatio": "2:1",
+        "resolution": "768x384",
+        "width": 768,
+        "height": 384,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 524288,
+        "aspectRatio": "1:2",
+        "resolution": "512x1024",
+        "width": 512,
+        "height": 1024,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 524288,
+        "aspectRatio": "2:1",
+        "resolution": "1024x512",
+        "width": 1024,
+        "height": 512,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 262144,
+        "aspectRatio": "1:4",
+        "resolution": "256x1024",
+        "width": 256,
+        "height": 1024,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 262144,
+        "aspectRatio": "4:1",
+        "resolution": "1024x256",
+        "width": 1024,
+        "height": 256,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 589824,
+        "aspectRatio": "1:4",
+        "resolution": "384x1536",
+        "width": 384,
+        "height": 1536,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 589824,
+        "aspectRatio": "4:1",
+        "resolution": "1536x384",
+        "width": 1536,
+        "height": 384,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 1048576,
+        "aspectRatio": "1:4",
+        "resolution": "512x2048",
+        "width": 512,
+        "height": 2048,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1048576,
+        "aspectRatio": "4:1",
+        "resolution": "2048x512",
+        "width": 2048,
+        "height": 512,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 393216,
+        "aspectRatio": "2:3",
+        "resolution": "512x768",
+        "width": 512,
+        "height": 768,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 393216,
+        "aspectRatio": "3:2",
+        "resolution": "768x512",
+        "width": 768,
+        "height": 512,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 884736,
+        "aspectRatio": "2:3",
+        "resolution": "768x1152",
+        "width": 768,
+        "height": 1152,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 884736,
+        "aspectRatio": "3:2",
+        "resolution": "1152x768",
+        "width": 1152,
+        "height": 768,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1038336,
+        "aspectRatio": "2:3",
+        "resolution": "832x1248",
+        "width": 832,
+        "height": 1248,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1038336,
+        "aspectRatio": "3:2",
+        "resolution": "1248x832",
+        "width": 1248,
+        "height": 832,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 442368,
+        "aspectRatio": "3:4",
+        "resolution": "576x768",
+        "width": 576,
+        "height": 768,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 442368,
+        "aspectRatio": "4:3",
+        "resolution": "768x576",
+        "width": 768,
+        "height": 576,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 786432,
+        "aspectRatio": "3:4",
+        "resolution": "768x1024",
+        "width": 768,
+        "height": 1024,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 786432,
+        "aspectRatio": "4:3",
+        "resolution": "1024x768",
+        "width": 1024,
+        "height": 768,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 995328,
+        "aspectRatio": "3:4",
+        "resolution": "864x1152",
+        "width": 864,
+        "height": 1152,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 995328,
+        "aspectRatio": "4:3",
+        "resolution": "1152x864",
+        "width": 1152,
+        "height": 864,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1034880,
+        "aspectRatio": "3:4",
+        "resolution": "880x1176",
+        "width": 880,
+        "height": 1176,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1034880,
+        "aspectRatio": "4:3",
+        "resolution": "1176x880",
+        "width": 1176,
+        "height": 880,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 327680,
+        "aspectRatio": "4:5",
+        "resolution": "512x640",
+        "width": 512,
+        "height": 640,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 327680,
+        "aspectRatio": "5:4",
+        "resolution": "640x512",
+        "width": 640,
+        "height": 512,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 737280,
+        "aspectRatio": "4:5",
+        "resolution": "768x960",
+        "width": 768,
+        "height": 960,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 737280,
+        "aspectRatio": "5:4",
+        "resolution": "960x768",
+        "width": 960,
+        "height": 768,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1003520,
+        "aspectRatio": "4:5",
+        "resolution": "896x1120",
+        "width": 896,
+        "height": 1120,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1003520,
+        "aspectRatio": "5:4",
+        "resolution": "1120x896",
+        "width": 1120,
+        "height": 896,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1043328,
+        "aspectRatio": "4:5",
+        "resolution": "912x1144",
+        "width": 912,
+        "height": 1144,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1043328,
+        "aspectRatio": "5:4",
+        "resolution": "1144x912",
+        "width": 1144,
+        "height": 912,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 258048,
+        "aspectRatio": "4:7",
+        "resolution": "384x672",
+        "width": 384,
+        "height": 672,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 258048,
+        "aspectRatio": "7:4",
+        "resolution": "672x384",
+        "width": 672,
+        "height": 384,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 458752,
+        "aspectRatio": "4:7",
+        "resolution": "512x896",
+        "width": 512,
+        "height": 896,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 458752,
+        "aspectRatio": "7:4",
+        "resolution": "896x512",
+        "width": 896,
+        "height": 512,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 716800,
+        "aspectRatio": "4:7",
+        "resolution": "640x1120",
+        "width": 640,
+        "height": 1120,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 716800,
+        "aspectRatio": "7:4",
+        "resolution": "1120x640",
+        "width": 1120,
+        "height": 640,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 1032192,
+        "aspectRatio": "4:7",
+        "resolution": "768x1344",
+        "width": 768,
+        "height": 1344,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1032192,
+        "aspectRatio": "7:4",
+        "resolution": "1344x768",
+        "width": 1344,
+        "height": 768,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 983040,
+        "aspectRatio": "5:12",
+        "resolution": "640x1536",
+        "width": 640,
+        "height": 1536,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 983040,
+        "aspectRatio": "12:5",
+        "resolution": "1536x640",
+        "width": 1536,
+        "height": 640,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1032192,
+        "aspectRatio": "7:9",
+        "resolution": "896x1152",
+        "width": 896,
+        "height": 1152,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1032192,
+        "aspectRatio": "9:7",
+        "resolution": "1152x896",
+        "width": 1152,
+        "height": 896,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 252928,
+        "aspectRatio": "9:13",
+        "resolution": "416x608",
+        "width": 416,
+        "height": 608,
+        "orientation": "portrait",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 252928,
+        "aspectRatio": "13:9",
+        "resolution": "608x416",
+        "width": 608,
+        "height": 416,
+        "orientation": "landscape",
+        "recommendedModel": null
+    },
+    {
+        "pixels": 1011712,
+        "aspectRatio": "9:13",
+        "resolution": "832x1216",
+        "width": 832,
+        "height": 1216,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1011712,
+        "aspectRatio": "13:9",
+        "resolution": "1216x832",
+        "width": 1216,
+        "height": 832,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 466944,
+        "aspectRatio": "9:16",
+        "resolution": "512x912",
+        "width": 512,
+        "height": 912,
+        "orientation": "portrait",
+        "recommendedModel": "SD15"
+    },
+    {
+        "pixels": 466944,
+        "aspectRatio": "16:9",
+        "resolution": "912x512",
+        "width": 912,
+        "height": 512,
+        "orientation": "landscape",
+        "recommendedModel": "SD15"
+    },
+    {
+        "pixels": 1044480,
+        "aspectRatio": "9:16",
+        "resolution": "768x1360",
+        "width": 768,
+        "height": 1360,
+        "orientation": "portrait",
+        "recommendedModel": "SDXL"
+    },
+    {
+        "pixels": 1044480,
+        "aspectRatio": "16:9",
+        "resolution": "1360x768",
+        "width": 1360,
+        "height": 768,
+        "orientation": "landscape",
+        "recommendedModel": "SDXL"
+    }
+]
