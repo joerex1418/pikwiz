@@ -70,11 +70,12 @@ function updateImageDisplayUI(imageUploaded) {
     const imageWrapperDiv = document.getElementById("image-display-container");
     const imgElement = imageWrapperDiv.querySelector("img");
     if (imageUploaded == true) {
-        imgElement.style.width = "auto";
-        imgElement.style.height = "auto";
-        imgElement.style.maxWidth = imageWrapperDiv.clientWidth.toString() + "px";
-        imgElement.style.maxHeight = imageWrapperDiv.clientHeight.toString() + "px";
+        // imgElement.style.width = "auto";
+        // imgElement.style.height = "auto";
+        // imgElement.style.maxWidth = imageWrapperDiv.clientWidth.toString() + "px";
+        // imgElement.style.maxHeight = imageWrapperDiv.clientHeight.toString() + "px";
         imageWrapperDiv.classList.add("populated")
+
     } else {
         imageWrapperDiv.classList.remove("populated")
     }
@@ -151,7 +152,7 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         let checkpointId = null;
         let checkpointVersionId = null;
         let checkpointName = data["generation"]["settings"]["model"];
-        let checkpointVersionName = null;
+        let checkpointVersionName = "";
 
         let civitaiResources = data["generation"]["civitai_resources"];
         civitaiResources = civitaiResources ? civitaiResources : []
@@ -196,6 +197,12 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         checkpointInputElem.dataset["checkpointId"] = checkpointId;
         checkpointInputElem.dataset["checkpointVersionId"] = checkpointVersionId;
         checkpointInputElem.dataset["checkpointVersionName"] = checkpointVersionName;
+
+        if (checkpointVersionName.toLowerCase().indexOf("flux") != -1 || checkpointName.toLowerCase().indexOf("flux") != -1) {
+            document.querySelector("#negative-prompt").classList.add("flux");
+        } else {
+            document.querySelector("#negative-prompt").classList.remove("flux");
+        }
 
 
         if (!data["generation"]["settings"]["vae"]) data["generation"]["settings"]["vae"] = ""
@@ -309,7 +316,12 @@ function genDataToRawString(randomSeed=true) {
     let sampler = document.getElementById("sampler").querySelector(".detail-value").value;
     let scheduleType = document.getElementById("schedule-type").querySelector(".detail-value").value;
 
-    let samplerSched = `${sampler} ${scheduleType}`.trim()
+    let samplerSched = undefined;
+    if (scheduleType == "Karras") {
+        samplerSched = `${sampler} ${scheduleType}`.trim();
+    } else {
+        samplerSched = sampler;
+    }
 
     let modelCheckpoint = document.getElementById("model-checkpoint").querySelector(".detail-value").value;
     let vaeModel = document.getElementById("vae").querySelector(".detail-value").value;
@@ -322,7 +334,12 @@ function genDataToRawString(randomSeed=true) {
     // document.getElementById("loras")
     // document.getElementById("weighted-tags")
 
-    let string = `${positivePrompt}\nNegative prompt: ${negativePrompt}\nSteps: ${steps}, CFG scale: ${cfgScale}, Sampler: ${samplerSched}, Seed: ${seed}`
+    let string = undefined;
+    if (randomSeed == true) {
+        string = `${positivePrompt}\nNegative prompt: ${negativePrompt}\nSteps: ${steps}, CFG scale: ${cfgScale}, Sampler: ${samplerSched}`
+    } else {
+        string = `${positivePrompt}\nNegative prompt: ${negativePrompt}\nSteps: ${steps}, CFG scale: ${cfgScale}, Sampler: ${samplerSched}, Seed: ${seed}`
+    }
 
     return string
 }

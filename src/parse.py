@@ -16,6 +16,8 @@ from .civitai_constants import SAMPLER_MAP
 from .civitai_constants import CIVITAI_SAMPLER_DROPDOWN_MAP
 from .prompt import parse_weighted_prompt_tags
 
+
+
 class ImageData:
     def __init__(self, data: str | io.BytesIO | Image.Image):
         if isinstance(data, Image.Image):
@@ -60,7 +62,16 @@ class ImageData:
 
 def extract_prompt_from_image(image: Image.Image):
     prompt_str = ""
-    
+    if "prompt" in image.info.keys():
+        data = {"prompt": None, "workflow": None}
+
+        data["prompt"] = json.loads(image.info["prompt"])
+        data["workflow"] = json.loads(image.info["workflow"])
+
+        console.print_json(data=data)
+        raise Exception("Temporary")
+
+    # console.print(image.info)
     if "parameters" in image.info.keys():
         prompt_str = image.info["parameters"]
     
@@ -86,7 +97,8 @@ def extract_prompt_from_image(image: Image.Image):
             else:
                 cprint.bright_red("Couldn't find data in exif byte string")
 
-    
+    prompt_str = prompt_str.replace("\x00", "")
+    console.print(prompt_str)
     return prompt_str.replace("\x00", "")
 
 

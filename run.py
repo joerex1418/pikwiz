@@ -1,6 +1,8 @@
 import sys
 import pathlib
 
+from tabulate import tabulate
+
 from src.parse import ImageData
 from src.util import resize_image
 from src.util import resize_bulk_from_web
@@ -9,25 +11,31 @@ from src.parse import parse_prompt_string
 from src.color import cprint, color
 from PIL.ExifTags import TAGS
 
+def display_8_64_divisors():
+    with open("temp.txt", "r") as fp:
+        txt = fp.read()
+        sizelist = [x.strip() for x in txt.split("\n")]
 
-urllist = [
-    "https://orchestration.civitai.com/v2/consumer/blobs/45SDJNQW7WBK54VRABVSYAHST0.jpeg",
-    "https://orchestration.civitai.com/v2/consumer/blobs/NZWNS3V3W20G7EMDVKQBZJMYQ0.jpeg",
-    "https://orchestration.civitai.com/v2/consumer/blobs/0AV0FJ2W3R8927KCTX9KXMPD10.jpeg",
-    "https://orchestration.civitai.com/v2/consumer/blobs/R8BWCFWB7FNG96AQXZKCTV1E00.jpeg",
-    "https://orchestration.civitai.com/v2/consumer/blobs/QRDQX00P0B672A7QRJCVQEK880.jpeg",
-    ]
+        data = []
+        for size in sizelist:
+            w = int(size.split("x")[0].strip())
+            h = int(size.split("x")[1].strip())
 
-new_images, og_images = resize_bulk_from_web(urllist, factor=0.5, return_originals=True)
+            divisible_by_8 = ""
+            divisible_by_64 = ""
 
+            if w % 8 == 0 and h % 8 == 0:
+                divisible_by_8 = "X"
 
-img = og_images[0]
+            if w % 64 == 0 and h % 64 == 0:
+                divisible_by_64 = "X"
+            
+            data.append({"Size": f"{w} x {h}", "Div8": divisible_by_8, "Div64": divisible_by_64})
+        
+        table_string = tabulate(data, headers="keys")
 
-new = ImageData(new_images[0])
-og = ImageData(og_images[0])
+        print(table_string)
 
-# print(new.raw_prompt)
-print(new_images[0].info["url"])
-
+        
 
 

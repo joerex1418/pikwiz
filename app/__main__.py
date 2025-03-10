@@ -121,6 +121,7 @@ def extract_prompt():
     img = ImageData(bytes_io)
 
     generation_dict = parse_prompt_string(img.raw_prompt)
+    
 
     data = {
         "generation": generation_dict,
