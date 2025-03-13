@@ -98,7 +98,7 @@ def extract_prompt_from_image(image: Image.Image):
                 cprint.bright_red("Couldn't find data in exif byte string")
 
     prompt_str = prompt_str.replace("\x00", "")
-    console.print(prompt_str)
+    # console.print(prompt_str)
     return prompt_str.replace("\x00", "")
 
 

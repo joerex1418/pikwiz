@@ -222,9 +222,27 @@ document.getElementById("extract-prompt-btn").addEventListener("click", function
         document.getElementById("schedule-type").querySelector(".detail-value").value = data["generation"]["settings"]["schedule_type"]
 
         document.getElementById("cfg-scale").querySelector(".detail-value").value = data["generation"]["settings"]["cfg_scale"]
-        
         document.getElementById("seed").querySelector(".detail-value").value = data["generation"]["settings"]["seed"]
-        
+
+        Object.keys(data["generation"]["settings"]).forEach(key => {
+            if (key.charAt(0) == "_") {
+                displayKey = key.slice(1);
+                let value = data["generation"]["settings"][key];
+                let trElem = document.createElement("tr");
+                
+                let tdKeyElem = document.createElement("td");
+                let tdValueElem = document.createElement("td");
+
+                tdKeyElem.textContent = displayKey;
+                tdValueElem.textContent = value;
+
+                trElem.appendChild(tdKeyElem);
+                trElem.appendChild(tdValueElem);
+
+                document.querySelector("#grid-5 table tbody").appendChild(trElem);
+            }
+        })
+
         let size = data["generation"]["settings"]["size"];
         let width = parseInt(size.split("x")[0]);
         let height = parseInt(size.split("x")[1]);

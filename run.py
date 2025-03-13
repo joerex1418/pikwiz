@@ -1,14 +1,19 @@
 import sys
-import pathlib
+import json
+from pathlib import Path
 
+import httpx
 from tabulate import tabulate
 
 from src.parse import ImageData
+from src.civitai_api import civitai
 from src.util import resize_image
 from src.util import resize_bulk_from_web
 from src.parse import extract_prompt_from_image
 from src.parse import parse_prompt_string
-from src.color import cprint, color
+from src.color import color
+from src.color import cprint
+from src.color import console
 from PIL.ExifTags import TAGS
 
 def display_8_64_divisors():
@@ -37,5 +42,23 @@ def display_8_64_divisors():
         print(table_string)
 
         
+def generate_civitai_image():
+    url = "https://civitai.com/api/trpc/orchestrator.generateImage"
+    api = civitai.from_user_config()
+    headers = api.auth_headers()
+    headers["accept"] = "*/*"
+    headers["content-type"] = "application/json"
+
+    json_body = json.loads(Path(__file__).parent.joinpath("temp_body.json").read_text())
+
+    with httpx.Client(headers=headers) as client:
+        r = client.request("POST", url=url, headers=headers, json=json_body)
+        
+        console.print(r)
+        
+        if r.status_code == 200:
+            with Path(__file__).parent.joinpath("temp_response.json").open("w+") as fp:
+                json.dump(r.json(), fp, indent=4)
 
 
+generate_civitai_image()
