@@ -5,6 +5,7 @@ from typing import Literal
 from typing import Iterable
 
 import httpx
+import orjson
 
 from . import util
 from .civitai_constants import GenTag
@@ -23,6 +24,15 @@ _BrowsingLevel = int
 
 def to_json(data):
     return json.dumps(data, separators=(",", ":"))
+
+def read_json(path_or_jsonstring:pathlib.Path|str):
+    try:
+        path = pathlib.Path(path_or_jsonstring).resolve()
+        assert(path.exists())
+        with path.open("rb") as fp:
+            return orjson.loads(fp.read())
+    except:
+        return orjson.loads(path_or_jsonstring.encode("utf-8"))
 
 
 class civitai:
@@ -91,7 +101,7 @@ class civitai:
 
 
     def get_account_settings(self):
-        headers = {"Authorization": f"Bearer {self.api_key}"}
+        headers = self.auth_headers()
 
         # with httpx.Client(headers=headers) as client:
         #     req = client.build_request("GET", "https://civitai.com/user/account")
@@ -108,7 +118,7 @@ class civitai:
 
         #     return userdata
         
-        with httpx.Client(headers=self.auth_headers()) as client:
+        with httpx.Client(headers=headers) as client:
             r = client.get("https://civitai.com/_next/data/QTZm0NQ8U_VFivbfS8yYc/en/user/account.json")
             
             jsondata = r.json()
@@ -194,7 +204,7 @@ class civitai:
             return jsondata
 
 
-    def get_all_generations(self, asc:bool=False, tags:list[GenTag]=None):
+    def index_generation_queue(self, asc:bool=False, tags:list[GenTag]=None):
         url = self.base_trpc + "/orchestrator.queryGeneratedImages"
         
         headers = self.auth_headers()
@@ -229,7 +239,7 @@ class civitai:
 
         all_items = []
         
-        with httpx.Client(headers=headers) as client:
+        with httpx.Client(headers=headers, timeout=httpx.Timeout(10)) as client:
             data = get_queue_with_cursor(client, cursor=None, asc=asc, tags=tags_modified)
             all_items.extend(data.get("json", {}).get("items", []))
             cursor = data.get("json", {}).get("nextCursor")
@@ -237,11 +247,136 @@ class civitai:
                 data = get_queue_with_cursor(client, cursor, asc=asc, tags=tags_modified)
                 all_items.extend(data.get("json", {}).get("items", []))
                 cursor = data.get("json", {}).get("nextCursor")
-        
+
         data = {"items": all_items}
 
         return data
 
+    
+    def normalize_queue_items(self) -> list[dict]:
+        jsondata = read_json(self.get_user_config_path().parent.joinpath("genindex.json"))
+        
+        image_data = []
+        
+        item: dict
+        for item in jsondata["items"]:
+            workflow_id = item["id"]
+            buzz = item.get("cost", {}).get("total")
+            
+            steps = item.get("steps", [{}])
+            step: dict = steps[0]
+
+            metadata: dict = step.get("metadata", {})
+            params: dict = step.get("params", {})
+
+            base_model = params.get("baseModel")
+            cfg_scale = params["cfgScale"]
+            clip_skip = params["clipSkip"]
+            width = params["width"]
+            height = params["height"]
+            prompt = params["prompt"]
+            negative_prompt = params.get("negativePrompt")
+            number_of_steps = params["steps"]
+            sampler = params["sampler"]
+            quantity = params["quantity"]
+            workflow_type = params["workflow"]
+            engine = params.get("engine")
+            flux_mode = params.get("fluxMode")
+            flux_ultra_raw = params.get("fluxUltraRaw")
+
+            meta_params: dict = metadata.get("params", {})
+            meta_images: dict = metadata.get("images", {})
+
+            draft = meta_params.get("draft", False)
+            nsfw = meta_params.get("nsfw", False)
+            experimental = meta_params.get("experimental")
+            source_image = meta_params.get("sourceImage")
+            if isinstance(source_image, dict):
+                source_image = source_image.get("url")
+            else:
+                source_image = ""
+
+            resources: list[dict] = step.get("resources", [])
+
+            checkpoint_id = None
+            checkpoint_name = None
+            checkpoint_version_id = None
+            checkpoint_version_name = None
+            for rsrc in resources:
+                if rsrc.get("model", {}).get("type", "").lower() == "checkpoint":
+                    checkpoint_id = rsrc["model"]["id"]
+                    checkpoint_name = rsrc["model"]["name"]
+                    checkpoint_version_id = rsrc["id"]
+                    checkpoint_version_name = rsrc["name"]
+                    break
+            
+            additional_resource_ids = []
+            additional_resource_names = []
+            additional_resource_version_ids = []
+            additional_resource_version_names = []
+            for rsrc in resources:
+                if rsrc.get("model", {}).get("type", "").lower() != "checkpoint":
+                    additional_resource_ids.append(rsrc["model"]["id"])
+                    additional_resource_names.append(rsrc["model"]["name"])
+                    additional_resource_version_ids.append(rsrc["id"])
+                    additional_resource_version_names.append(rsrc["name"])
+
+
+            for img_item in step["images"]:
+                job_id = img_item["jobId"]
+                img_id = img_item["id"]
+                seed = img_item["seed"]
+                status = img_item["status"]
+                img_url = img_item["url"]
+                
+                img_meta: dict = meta_images.get(img_id, {})
+
+                favorite = img_meta.get("favorite", False)
+                liked = img_meta.get("feedback") == "liked"
+                disliked = img_meta.get("feedback") == "disliked"
+
+                image_data.append({
+                    "workflow_id": workflow_id,
+                    "buzz": buzz,
+                    "base_model": base_model,
+                    "steps": number_of_steps,
+                    "cfg_scale": cfg_scale,
+                    "clip_skip": clip_skip,
+                    "width": width,
+                    "height": height,
+                    "prompt": prompt,
+                    "negative_prompt": negative_prompt,
+                    "sampler": sampler,
+                    "quantity": quantity,
+                    "workflow_type": workflow_type,
+                    "engine": engine,
+                    "flux_mode": flux_mode,
+                    "flux_ultra_raw": flux_ultra_raw,
+                    "draft": draft,
+                    "nsfw": nsfw,
+                    "experimental": experimental,
+                    "source_image": source_image,
+                    "checkpoint_id": checkpoint_id,
+                    "checkpoint_name": checkpoint_name,
+                    "checkpoint_version_id": checkpoint_version_id,
+                    "checkpoint_version_name": checkpoint_version_name,
+                    "additional_resource_ids": additional_resource_ids,
+                    "additional_resource_names": additional_resource_names,
+                    "additional_resource_version_ids": additional_resource_version_ids,
+                    "additional_resource_version_names": additional_resource_version_names,
+                    "job_id": job_id,
+                    "img_id": img_id,
+                    "seed": seed,
+                    "status": status,
+                    "img_url": img_url,
+                    "status": status,
+                    "favorite": favorite,
+                    "liked": liked,
+                    "disliked": disliked,
+                })
+
+        return image_data
+        
 
     def get_image_generation_data(self, image_id:int, **kwargs):
         """
@@ -923,7 +1058,6 @@ class civitai:
         model_versions_data = {x["id"]: x for x in model_versions_data}
         
         return model_versions_data
-
 
 
 
