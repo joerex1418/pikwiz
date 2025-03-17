@@ -29,8 +29,10 @@ app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
 
 assets = Environment(app)
-scss = Bundle('style.scss', filters='pyscss', output='style.css')
-assets.register('style',scss)
+main_scss = Bundle('style.scss', filters='pyscss', output='style.css')
+assets.register('main', main_scss)
+tagit_scss = Bundle('tagit.scss', filters='pyscss', output='tagit.css')
+assets.register('tagit', tagit_scss)
 
 # generate_resolution_json()
 
@@ -122,7 +124,6 @@ def extract_prompt():
 
     generation_dict = parse_prompt_string(img.raw_prompt)
     
-
     data = {
         "generation": generation_dict,
         "raw": img.raw_prompt
@@ -151,6 +152,31 @@ def civitai_model():
         data = {}
     
     return data
+
+
+@app.route("/tagit", methods=["GET", "POST"])
+def tagit():
+    if request.method == "GET":
+        return render_template("tagit.html")
+    
+    elif request.method == "POST":
+        images = request.files.getlist("images")
+        
+        return_data = []
+        for imagefile in images:
+            bytes_io = io.BytesIO(imagefile.read())
+            try:
+                image_data = ImageData(bytes_io)
+                gendict = parse_prompt_string(image_data.raw_prompt, prompts_only=True)
+                
+                return_data.append({
+                    "filename": imagefile.filename,
+                    "tagtext": gendict.get("positive")
+                })
+            except Exception as e:
+                console.log(e)
+        
+        return return_data
 
 
 if __name__ == "__main__":

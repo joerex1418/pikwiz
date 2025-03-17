@@ -102,7 +102,7 @@ def extract_prompt_from_image(image: Image.Image):
     return prompt_str.replace("\x00", "")
 
 
-def parse_prompt_string(raw_prompt_string):
+def parse_prompt_string(raw_prompt_string, **kwargs):
     json_data = None
     extra_metadata = None
     
@@ -178,6 +178,9 @@ def parse_prompt_string(raw_prompt_string):
         positive_prompt = positive_prompt.strip().strip(",").strip()
     if isinstance(negative_prompt, str):
         negative_prompt = negative_prompt.strip().strip(",").strip()
+    
+    if kwargs.get("prompts_only") == True:
+        return {"positive": positive_prompt, "negative": negative_prompt}
 
     # --------------------------------------- #
     # Read LoRA and Embedding data
