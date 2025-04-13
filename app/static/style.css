@@ -58,13 +58,13 @@
                   align-items: center; }
                   @media only screen and (max-width: 1200px) {
                     #main #image-upload-container #image-display-container {
-                      width: 400px;
-                      height: 400px;   }
+                      width: 450px;
+                      height: 450px;   }
 }
                     @media only screen and (max-width: 1100px) {
                       #main #image-upload-container #image-display-container {
-                        width: 300px;
-                        height: 300px;   }
+                        width: 400px;
+                        height: 400px;   }
 }
                       @media only screen and (max-width: 680px) {
                         #main #image-upload-container #image-display-container {

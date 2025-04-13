@@ -153,7 +153,6 @@ def civitai_model():
     
     return data
 
-
 @app.route("/tagit", methods=["GET", "POST"])
 def tagit():
     if request.method == "GET":

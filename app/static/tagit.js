@@ -219,8 +219,7 @@ document.querySelector("input[name='image_dir']").addEventListener("change", fun
     for (let index = 0; index < e.target.files.length; index++) {
         const file = e.target.files[index];
         if (file.type.startsWith("image/")) {
-            // console.log(file.webkitRelativePath)
-
+            // Image
             let imgWrapper = document.createElement("div");
             imgWrapper.classList.add("img-wrapper");
             
@@ -229,7 +228,9 @@ document.querySelector("input[name='image_dir']").addEventListener("change", fun
             imgElem.src = blobUrl;
             imgElem.dataset["og_name"] = file.name;
             imgElem.onload = () => URL.revokeObjectURL(blobUrl);
+            imgWrapper.appendChild(imgElem)
             
+            // Prompt
             let promptWrapper = document.createElement("div");
             promptWrapper.classList.add("prompt-wrapper");
             
@@ -238,8 +239,6 @@ document.querySelector("input[name='image_dir']").addEventListener("change", fun
             textArea.autocapitalize = "off"
             textArea.autocomplete = "off"
             textArea.ariaAutoComplete = "none"
-            
-            imgWrapper.appendChild(imgElem)
             promptWrapper.appendChild(textArea)
 
             galleryElem.appendChild(imgWrapper)
