@@ -37,29 +37,6 @@ class ImageData:
         self.raw_prompt = extract_prompt_from_image(self.image)
 
 
-    def _get_raw_prompt_old(self) -> str | None:
-        if self.image.format in ("PNG", "WEBP"):
-            prompt_str = self.image.info["parameters"]
-        
-        elif self.image.format in ("JPEG", "JPG", "TIFF", "JFIF"):
-            try:
-                exif_data = self.image._getexif()
-            except:
-                exif_data = self.image.getexif()
-            
-            if exif_data:
-                exif_dict = {TAGS.get(tag, tag): value for tag, value in exif_data.items()}
-                if "UserComment" in exif_dict:
-                    raw_comment: bytes = exif_dict["UserComment"]
-                    if raw_comment.startswith(b"UNICODE"):
-                        prompt_str = raw_comment[7:].decode("utf-8")
-        else:
-            prompt_str = ""
-        
-        return prompt_str.replace("\x00", "")
-
-
-
 def extract_prompt_from_image(image: Image.Image):
     prompt_str = ""
     if "prompt" in image.info.keys():

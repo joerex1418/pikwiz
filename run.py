@@ -15,6 +15,7 @@ from src.color import color
 from src.color import cprint
 from src.color import console
 from PIL.ExifTags import TAGS
+from PIL import Image
 
 def display_8_64_divisors():
     with open("temp.txt", "r") as fp:
@@ -61,4 +62,17 @@ def generate_civitai_image():
                 json.dump(r.json(), fp, indent=4)
 
 
-generate_civitai_image()
+
+filepath = Path(__file__).parent.joinpath("sample images", "comfyui-example2.png")
+
+image = Image.open(filepath)
+
+# prompt = extract_prompt_from_image(image)
+prompt = json.loads(image.info.get("prompt"))
+workflow = json.loads(image.info.get("workflow"))
+
+with open("temp.json", "w+") as fp:
+    json.dump({"prompt": prompt, "workflow": workflow}, fp)
+
+# console.print_json(image.info.get("prompt", {}))
+# console.print_json(image.info.get("workflow", {}))
