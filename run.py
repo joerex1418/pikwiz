@@ -17,6 +17,7 @@ from src.color import console
 from PIL.ExifTags import TAGS
 from PIL import Image
 
+
 def display_8_64_divisors():
     with open("temp.txt", "r") as fp:
         txt = fp.read()
@@ -62,17 +63,33 @@ def generate_civitai_image():
                 json.dump(r.json(), fp, indent=4)
 
 
+# filepath = Path(__file__).parent.joinpath("sample images", "comfyui-example2.png")
+# filepath = Path(__file__).parent.joinpath("sample images", "masterpiec-3677676526-02_15_38-0.png")
+# filepath = Path(__file__).parent.joinpath("sample images", "/Users/joseph/projects/pikwiz/sample images/with_lora_masterpiec-834330238-23_02_57-0.png")
+# filepath = Path(__file__).parent.joinpath("sample images", "safe.jpeg")
 
-filepath = Path(__file__).parent.joinpath("sample images", "comfyui-example2.png")
+filepath = Path("/Users/joseph/Downloads/00178-4072864290.png")
+filepath = Path("/Users/joseph/Downloads/915117036223384778.png")
+filepath = Path("/Users/joseph/projects/pikwiz/sample images/civitai-dl (multiple loras) (og) 2.jpeg")
+filepath = Path("/Users/joseph/projects/pikwiz/sample images/with_lora_masterpiec-834330238-23_02_57-0.png") 
+# filepath = Path("/Users/joseph/projects/pikwiz/sample images/00002-208470858.png")
+# filepath = Path("/Users/joseph/projects/pikwiz/sample images/00006-1357204631.png")
 
 image = Image.open(filepath)
 
-# prompt = extract_prompt_from_image(image)
-prompt = json.loads(image.info.get("prompt"))
-workflow = json.loads(image.info.get("workflow"))
+image_data = ImageData(image)
 
-with open("temp.json", "w+") as fp:
-    json.dump({"prompt": prompt, "workflow": workflow}, fp)
+# console.print(image_data.raw_prompt)
+console.print_json(data=parse_prompt_string(image_data.raw_prompt))
 
-# console.print_json(image.info.get("prompt", {}))
-# console.print_json(image.info.get("workflow", {}))
+# try:
+#     prompt = json.loads(image.info.get("prompt"))
+#     gen_data_string = image.info.get("generation_data", "")
+#     gen_data_string = gen_data_string.replace("\x00", "").strip()
+#     generation_data = json.loads(gen_data_string)
+#     console.print(generation_data)
+# except:
+#     console.print(image.info)
+
+# with open("temp.json", "w+") as fp:
+#     json.dump({"prompt": prompt, "workflow": workflow}, fp)

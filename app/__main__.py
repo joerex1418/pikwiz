@@ -72,9 +72,9 @@ def manual_load():
     if path:
         path = pathlib.Path(path).name
         img = ImageData(f"sample images/{path}")
-    
+
     generation_dict = parse_prompt_string(img.raw_prompt)
-    
+
     data = {
         "generation": generation_dict,
         "raw": img.raw_prompt
@@ -123,14 +123,16 @@ def extract_prompt():
     img = ImageData(bytes_io)
 
     generation_dict = parse_prompt_string(img.raw_prompt)
+    import rich
+    # rich.print_json(data=generation_dict)
     
     data = {
         "generation": generation_dict,
         "raw": img.raw_prompt
     }
 
-    with open("temp.json", "w+") as fp:
-        json.dump(data, fp)
+    # with open("temp.json", "w+") as fp:
+    #     json.dump(data, fp)
 
     return data
 
@@ -179,4 +181,4 @@ def tagit():
 
 
 if __name__ == "__main__":
-    app.run("127.0.0.1", port=5500, debug=True)
+    app.run("localhost", port=5550, debug=True)

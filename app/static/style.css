@@ -149,18 +149,32 @@
                   grid-template-rows: auto auto; }
                   #main #image-generation-details-container .details-grid#grid-2 #positive-prompt {
                     grid-row: 1 / span 1;
-                    grid-column: 1 / span 1; }
-                    #main #image-generation-details-container .details-grid#grid-2 #positive-prompt textarea {
-                      height: 6rem; }
+                    grid-column: 1 / span 1;
+                    grid-template-columns: auto auto;
+                    grid-template-rows: auto auto; }
+                    #main #image-generation-details-container .details-grid#grid-2 #positive-prompt #copy-positive-prompt-btn.btn {
+                      height: max-content;
+                      padding: 4px;
+                      justify-self: right; }
+                      #main #image-generation-details-container .details-grid#grid-2 #positive-prompt textarea {
+                        height: 6rem;
+                        grid-column: 1 / span 2; }
                   #main #image-generation-details-container .details-grid#grid-2 #negative-prompt {
                     grid-row: 2 / span 1;
-                    grid-column: 1 / span 1; }
-                    #main #image-generation-details-container .details-grid#grid-2 #negative-prompt textarea {
-                      height: 6rem; }
-                      #main #image-generation-details-container .details-grid#grid-2 #negative-prompt.flux {
-                        text-decoration: line-through; }
-                        #main #image-generation-details-container .details-grid#grid-2 #negative-prompt.flux textarea {
-                          background-color: gray; }
+                    grid-column: 1 / span 1;
+                    grid-template-columns: max-content auto;
+                    grid-template-rows: auto auto; }
+                    #main #image-generation-details-container .details-grid#grid-2 #negative-prompt #copy-negative-prompt-btn.btn {
+                      height: max-content;
+                      padding: 4px;
+                      justify-self: right; }
+                      #main #image-generation-details-container .details-grid#grid-2 #negative-prompt textarea {
+                        height: 6rem;
+                        grid-column: 1 / span 2; }
+                        #main #image-generation-details-container .details-grid#grid-2 #negative-prompt.flux {
+                          text-decoration: line-through; }
+                          #main #image-generation-details-container .details-grid#grid-2 #negative-prompt.flux textarea {
+                            background-color: gray; }
                   #main #image-generation-details-container .details-grid#grid-2 #loras,
                   #main #image-generation-details-container .details-grid#grid-2 #weighted-tags {
                     display: none; }

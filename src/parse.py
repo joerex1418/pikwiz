@@ -39,18 +39,28 @@ class ImageData:
 
 def extract_prompt_from_image(image: Image.Image):
     prompt_str = ""
-    if "prompt" in image.info.keys():
-        data = {"prompt": None, "workflow": None}
+    # if "prompt" in image.info.keys():
+    #     # ComfyUI (maybe??)
+    #     data = {"prompt": None, "workflow": None}
+        
+    #     console.print(image.info)
 
-        data["prompt"] = json.loads(image.info["prompt"])
-        data["workflow"] = json.loads(image.info["workflow"])
+    #     data["prompt"] = json.loads(image.info["prompt"])
+    #     data["workflow"] = json.loads(image.info["workflow"])
 
-        console.print_json(data=data)
-        raise Exception("Temporary")
+    #     console.print_json(data=data)
+    #     raise Exception("Temporary")
 
     # console.print(image.info)
     if "parameters" in image.info.keys():
         prompt_str = image.info["parameters"]
+
+    elif "prompt" in image.info.keys() and "generation_data" in image.info.keys():
+        # Tensor Art
+        prompt = json.loads(image.info["prompt"])
+        gen_data = json.loads(image.info["generation_data"].replace("\x00", ""))
+
+        prompt_str = "TENSOR-ART__" + json.dumps({"prompt": prompt, "generation_data": gen_data})
     
     else:
         try:
@@ -74,14 +84,55 @@ def extract_prompt_from_image(image: Image.Image):
             else:
                 cprint.bright_red("Couldn't find data in exif byte string")
 
+        
     prompt_str = prompt_str.replace("\x00", "")
     # console.print(prompt_str)
-    return prompt_str.replace("\x00", "")
+
+    return prompt_str
 
 
 def parse_prompt_string(raw_prompt_string, **kwargs):
     json_data = None
     extra_metadata = None
+
+    # Tensor.Art gen data
+    if "TENSOR-ART__" in raw_prompt_string:
+        raw_prompt_string = raw_prompt_string.replace("TENSOR-ART__", "")
+        json_data = json.loads(raw_prompt_string)
+        gen_data = json_data["generation_data"]
+        # rich.print(json_data)
+        # rich.print(gen_data)
+
+        lora_models = []
+        embed_models = []
+        for model in gen_data.get("models", []):
+            if model.get("type", "").lower() == "lora":
+                lora_models.append([model.get("modelFileName"), model.get("weight")])
+            elif "embed" in model.get("type", "").lower():
+                embed_models.append([model.get("modelFileName"), model.get("weight")])
+
+        generation_data = {
+            "positive": gen_data["prompt"],
+            "negative": gen_data["negativePrompt"],
+            "loras": lora_models,
+            "embeds": embed_models,
+            # "custom_tag_weights": {
+            #     "positive": positive_prompt_weight_tags,
+            #     "negative": negative_prompt_weight_tags
+            # }, 
+            "settings": {
+                "steps": gen_data["steps"],
+                "cfg_scale": gen_data["cfgScale"],
+                "seed": gen_data["seed"],
+                "sampler": gen_data["ksamplerName"],
+                "schedule_type": gen_data["schedule"],
+                "model": gen_data.get("baseModel", {}).get("modelFileName"),
+                "size": f"{gen_data['width']}x{gen_data['height']}",
+            },
+            "civitai_resources": None,
+            "civitai_metadata": None,
+        }
+        return generation_data
     
     try:
         json_data = json.loads(raw_prompt_string)
@@ -285,10 +336,13 @@ def parse_prompt_string(raw_prompt_string, **kwargs):
         model_version_ids = [str(x["modelVersionId"]).strip() for x in civitai_resources]
         if len(model_version_ids) > 0:
             # resources_data = bulk_resource_lookup(model_version_ids)
+            # print(model_version_ids)
             resources_data = civitai.get_model_versions(version_ids=model_version_ids)
+            # rich.print_json(data=resources_data)
+            # rich.print_json(data=civitai_resources)
 
             for resource in civitai_resources:
-                resource_data = [x for x in resources_data if x["id"] == resource["modelVersionId"]]
+                resource_data = [x for x in resources_data if x.get("id") == resource["modelVersionId"]]
                 if len(resource_data) > 0:
                     resource["base_model"] = resource_data[0]["baseModel"]
                     resource["model_id"] = resource_data[0]["modelId"]
@@ -315,7 +369,7 @@ def parse_prompt_string(raw_prompt_string, **kwargs):
                 # --------------------------------------------- #
                 # * Get VAE if not already populated
                 # --------------------------------------------- #
-                if "vae" not in settings_dict and (resource.get("type", "").lower() == "vae" or resource["sub_type"] == "vae"):
+                if "vae" not in settings_dict and (resource.get("type", "").lower() == "vae" or resource.get("sub_type", "").lower() == "vae"):
                     settings_dict["vae"] = resource["model_name"]
                     standard_keys["vae"] = "VAE"
 

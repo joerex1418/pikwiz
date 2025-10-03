@@ -363,13 +363,23 @@ function genDataToRawString(randomSeed=true) {
 }
 
 document.getElementById("copy-raw").addEventListener("click", function(e) {
-    let generationDataString = genDataToRawString(true)
-    navigator.clipboard.writeText(generationDataString.trim())
+    let generationDataString = genDataToRawString(true);
+    navigator.clipboard.writeText(generationDataString.trim());
 })
 
 document.getElementById("copy-raw-with-seed").addEventListener("click", function(e) {
-    let generationDataString = genDataToRawString(false)
-    navigator.clipboard.writeText(generationDataString.trim())
+    let generationDataString = genDataToRawString(false);
+    navigator.clipboard.writeText(generationDataString.trim());
+})
+
+document.getElementById("copy-positive-prompt-btn").addEventListener("click", function(e) {
+    let promptString = document.querySelector("#positive-prompt textarea").value;
+    navigator.clipboard.writeText(promptString.trim());
+})
+
+document.getElementById("copy-negative-prompt-btn").addEventListener("click", function(e) {
+    let promptString = document.querySelector("#negative-prompt textarea").value;
+    navigator.clipboard.writeText(promptString.trim());
 })
 
 
@@ -379,10 +389,10 @@ document.getElementById("copy-raw-with-seed").addEventListener("click", function
 document.getElementById("hide-image-btn").addEventListener("click", function() {
     let imgElem = document.querySelector("#image-preview img");
     if (imgElem.classList.contains("discreet")) {
-        imgElem.classList.remove("discreet")
-        document.getElementById("hide-image-btn").textContent = "Hide"
+        imgElem.classList.remove("discreet");
+        document.getElementById("hide-image-btn").textContent = "Hide";
     } else {
-        imgElem.classList.add("discreet")
-        document.getElementById("hide-image-btn").textContent = "Show"
+        imgElem.classList.add("discreet");
+        document.getElementById("hide-image-btn").textContent = "Show";
     }
 })
