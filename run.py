@@ -1,95 +1,43 @@
-import sys
-import json
-from pathlib import Path
-
-import httpx
-from tabulate import tabulate
-
-from src.parse import ImageData
-from src.civitai_api import civitai
-from src.util import resize_image
-from src.util import resize_bulk_from_web
-from src.parse import extract_prompt_from_image
-from src.parse import parse_prompt_string
-from src.color import color
-from src.color import cprint
-from src.color import console
-from PIL.ExifTags import TAGS
-from PIL import Image
+from src.api import get_pillow_image_object
+from src.api import extract_prompt_from_image
+from src.api import parse_prompt_string
+from src.color import console, cprint
 
 
-def display_8_64_divisors():
-    with open("temp.txt", "r") as fp:
-        txt = fp.read()
-        sizelist = [x.strip() for x in txt.split("\n")]
+# A1111 (txt2img)
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/txt2img-images/2025-10-29/00090-2954401898.png')
 
-        data = []
-        for size in sizelist:
-            w = int(size.split("x")[0].strip())
-            h = int(size.split("x")[1].strip())
+# A1111 (img2img)
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/Millie/00191-177736047 (1).png')
 
-            divisible_by_8 = ""
-            divisible_by_64 = ""
+# CivitAI (txt2img)
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/Millie/2025-10-29T05.54.12_1.jpg')
+image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/civitai downloads/CivitAI Backup (2025-04-03)/MB53J3KT3A8173Z9EDAVM1GF50.jpeg')
 
-            if w % 8 == 0 and h % 8 == 0:
-                divisible_by_8 = "X"
+# Tensor.art () (euler_a)
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/tensorart downloads/839995560707668303.png')
 
-            if w % 64 == 0 and h % 64 == 0:
-                divisible_by_64 = "X"
-            
-            data.append({"Size": f"{w} x {h}", "Div8": divisible_by_8, "Div64": divisible_by_64})
-        
-        table_string = tabulate(data, headers="keys")
+# Tensor.art (txt2img) (dpm2pp karras)
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/tensorart downloads/masterpiec-1847869443-17_33_59-1.png')
 
-        print(table_string)
+# Tensor.art (img2img)
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/tensorart downloads/masterpiec-1847869445-22_21_06.png')
 
-        
-def generate_civitai_image():
-    url = "https://civitai.com/api/trpc/orchestrator.generateImage"
-    api = civitai.from_user_config()
-    headers = api.auth_headers()
-    headers["accept"] = "*/*"
-    headers["content-type"] = "application/json"
+# Tensor.art (img2img) (lora and embedding)
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/tensorart downloads/masterpiec-1847869446-22_30_15-1.png')
 
-    json_body = json.loads(Path(__file__).parent.joinpath("temp_body.json").read_text())
+# Tensor.art (inpaint) (lora and embedding)
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/tensorart downloads/masterpiec-1847869445-22_39_07.png')
 
-    with httpx.Client(headers=headers) as client:
-        r = client.request("POST", url=url, headers=headers, json=json_body)
-        
-        console.print(r)
-        
-        if r.status_code == 200:
-            with Path(__file__).parent.joinpath("temp_response.json").open("w+") as fp:
-                json.dump(r.json(), fp, indent=4)
+# ComfyUI (txt2img) (checkpoint only)
+# image = get_pillow_image_object('/Users/joseph/Documents/ComfyUI/output/myla_00002_.png')
 
+prompt = extract_prompt_from_image(image)
+print("FULL PROMPT STRING:\n------------------------")
+console.print(prompt)
+print()
 
-# filepath = Path(__file__).parent.joinpath("sample images", "comfyui-example2.png")
-# filepath = Path(__file__).parent.joinpath("sample images", "masterpiec-3677676526-02_15_38-0.png")
-# filepath = Path(__file__).parent.joinpath("sample images", "/Users/joseph/projects/pikwiz/sample images/with_lora_masterpiec-834330238-23_02_57-0.png")
-# filepath = Path(__file__).parent.joinpath("sample images", "safe.jpeg")
-
-filepath = Path("/Users/joseph/Downloads/00178-4072864290.png")
-filepath = Path("/Users/joseph/Downloads/915117036223384778.png")
-filepath = Path("/Users/joseph/projects/pikwiz/sample images/civitai-dl (multiple loras) (og) 2.jpeg")
-filepath = Path("/Users/joseph/projects/pikwiz/sample images/with_lora_masterpiec-834330238-23_02_57-0.png") 
-# filepath = Path("/Users/joseph/projects/pikwiz/sample images/00002-208470858.png")
-# filepath = Path("/Users/joseph/projects/pikwiz/sample images/00006-1357204631.png")
-
-image = Image.open(filepath)
-
-image_data = ImageData(image)
-
-# console.print(image_data.raw_prompt)
-console.print_json(data=parse_prompt_string(image_data.raw_prompt))
-
-# try:
-#     prompt = json.loads(image.info.get("prompt"))
-#     gen_data_string = image.info.get("generation_data", "")
-#     gen_data_string = gen_data_string.replace("\x00", "").strip()
-#     generation_data = json.loads(gen_data_string)
-#     console.print(generation_data)
-# except:
-#     console.print(image.info)
-
-# with open("temp.json", "w+") as fp:
-#     json.dump({"prompt": prompt, "workflow": workflow}, fp)
+gendata = parse_prompt_string(prompt)
+print("GEN DATA:\n---------------")
+console.print_json(data=gendata)
+print()
