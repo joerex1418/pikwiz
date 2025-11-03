@@ -12,7 +12,7 @@ from src.color import console, cprint
 
 # CivitAI (txt2img)
 # image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/Millie/2025-10-29T05.54.12_1.jpg')
-image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/civitai downloads/CivitAI Backup (2025-04-03)/MB53J3KT3A8173Z9EDAVM1GF50.jpeg')
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/civitai downloads/CivitAI Backup (2025-04-03)/MB53J3KT3A8173Z9EDAVM1GF50.jpeg')
 
 # Tensor.art () (euler_a)
 # image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/tensorart downloads/839995560707668303.png')
@@ -31,6 +31,9 @@ image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-
 
 # ComfyUI (txt2img) (checkpoint only)
 # image = get_pillow_image_object('/Users/joseph/Documents/ComfyUI/output/myla_00002_.png')
+
+# image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/Millie/00158-2162353541.png')
+image = get_pillow_image_object('/Users/joseph/Downloads/IMG_5595.jpeg')
 
 prompt = extract_prompt_from_image(image)
 print("FULL PROMPT STRING:\n------------------------")
