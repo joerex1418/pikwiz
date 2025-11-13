@@ -54,6 +54,8 @@ def get_pillow_image_object(obj: str | Path | io.BytesIO | Image.Image) -> Image
         return obj
 
     elif isinstance(obj, (str, Path)):
+        if isinstance(obj, str):
+            obj = obj.strip()
         with Image.open(Path(obj).resolve()) as image:
             return image
     

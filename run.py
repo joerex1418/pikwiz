@@ -33,7 +33,12 @@ from src.color import console, cprint
 # image = get_pillow_image_object('/Users/joseph/Documents/ComfyUI/output/myla_00002_.png')
 
 # image = get_pillow_image_object('/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/Millie/00158-2162353541.png')
-image = get_pillow_image_object('/Users/joseph/Downloads/IMG_5595.jpeg')
+# image = get_pillow_image_object('/Users/joseph/Downloads/IMG_5595.jpeg')
+
+
+image = get_pillow_image_object("""
+/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/txt2img-images/2025-11-03/00001-1148744884.png
+""")
 
 prompt = extract_prompt_from_image(image)
 print("FULL PROMPT STRING:\n------------------------")
