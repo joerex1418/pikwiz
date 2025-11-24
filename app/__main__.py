@@ -13,17 +13,17 @@ from flask_assets import Environment, Bundle
 project_root = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(project_root))
 
-from src.parse import ImageData
-from src.parse import parse_prompt_string
+# from src.parse import ImageData
+# from src.parse import parse_prompt_string
 from src.color import color
 from src.color import console as console
-from src.civitai_api import civitai
-from src.civitai_api import model_lookup
-from src.civitai_api import model_version_lookup
-from src.civitai_api import bulk_resource_lookup
-from src.util import RESOLUTIONS
-from src.util import generate_resolution_json, load_resolution_json
-from src.civitai_constants import BaseModel, CheckpointType, FileFormat, ModelSort, ModelType, Period, Sort, GenTag, Technique, Tool
+# from src.civitai_api import civitai
+# from src.civitai_api import model_lookup
+# from src.civitai_api import model_version_lookup
+# from src.civitai_api import bulk_resource_lookup
+# from src.util import RESOLUTIONS
+# from src.util import generate_resolution_json, load_resolution_json
+# from src.civitai_constants import BaseModel, CheckpointType, FileFormat, ModelSort, ModelType, Period, Sort, GenTag, Technique, Tool
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -42,29 +42,53 @@ def inject_dict_for_all_templates():
 
 @app.route("/")
 def index():
-    # generate_resolution_json()
-    resolutions_json = load_resolution_json()
-    
-    square = [x for x in resolutions_json if x["orientation"] == "square"]
-    nonsquare = [x for x in resolutions_json if x["orientation"] != "square"]
-    portrait = [x for x in resolutions_json if x["orientation"] == "portrait"]
-    landscape = [x for x in resolutions_json if x["orientation"] == "landscape"]
+    return render_template('index.html')
 
-    square_ars = ["1:1"]
-    # Only need to filter by 'portrait'; I'll swap on client side
-    nonsquare_ars = list({x["aspectRatio"] for x in resolutions_json if x["orientation"] != "portrait"}) 
+@app.route("/load-directory")
+def load_directory():
+    path = request.args.get("path")
+    sort_by = request.args.get("sort", "created").lower().strip()
+    if path == None or path == "":
+        return "Error. Provide a path, bish"
     
-    ar_to_res_map = {"1:1": []}
-    for x in resolutions_json:
-        if x["orientation"] == "square":
-            ar_to_res_map["1:1"].append(x)
-        elif x["orientation"] == "portrait": # only need to filter by portrait; I'll swap on client side
-            if x["aspectRatio"] not in ar_to_res_map:
-                ar_to_res_map[x["aspectRatio"]] = []
-            
-            ar_to_res_map[x["aspectRatio"]].append(x)
+    path = pathlib.Path(path).resolve()
+    directory_items = list(path.iterdir())
+    
+    if sys.platform == "darwin":
+        correct_attribute = "st_birthtime"
+    elif sys.platform == "win32":
+        correct_attribute = "st_ctime"
+    elif sys.platform == "linux":
+        ...
 
-    return render_template('index.html', ar_to_res_map=ar_to_res_map, square=square, nonsquare=nonsquare, portrait=portrait, landscape=landscape, nonsquare_ars=nonsquare_ars)
+    if sort_by == "created" or sort_by == "modified":
+        directory_items = sorted(directory_items, key=lambda x: getattr(x.stat(), correct_attribute))
+
+    IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
+    image_files = []
+    for fileitem in directory_items:
+        if fileitem.suffix.lower() in IMAGE_EXTS:
+            size = fileitem.stat().st_size
+            size_display = None
+
+            for unit in ["B", "KB", "MB", "GB", "TB"]:
+                if size < 1024:
+                    size_display = f"{size:.2f} {unit}"
+                    break
+                size /= 1024
+
+            image_files.append({
+                "name": fileitem.name,
+                "type": fileitem.suffix,
+                "fullPath": fileitem.resolve().__str__(),
+                "sizeDisplay": size_display,
+                "size": size,
+                "createdDisplay": "TBD",
+                "created": getattr(fileitem.stat(), correct_attribute)
+            })
+    
+    return image_files
+
 
 @app.route("/manual_load")
 def manual_load():

@@ -36,14 +36,20 @@ from src.color import console, cprint
 # image = get_pillow_image_object('/Users/joseph/Downloads/IMG_5595.jpeg')
 
 
-image = get_pillow_image_object("""
-/Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/txt2img-images/2025-11-03/00001-1148744884.png
-""")
+# image = get_pillow_image_object("""
+# /Users/joseph/Library/CloudStorage/GoogleDrive-mangabox76@gmail.com/My Drive/a1111/outputs/civitai downloads/collection/20251009_2314_image.png
+# """)
 
+# image = get_pillow_image_object("/Users/joseph/Documents/ComfyUI/output/maia_00003_.png")
+# image = get_pillow_image_object("sample images/comfyui-example2.png")
+# image = get_pillow_image_object("sample images/civitai-dl (multiple loras).jpeg")
+image = get_pillow_image_object("sample images/civitai-dl (img2img).jpg")
+# image = get_pillow_image_object("sample images/civitai-dl (txt2img).jpg")
 prompt = extract_prompt_from_image(image)
-print("FULL PROMPT STRING:\n------------------------")
-console.print(prompt)
-print()
+
+# print("FULL PROMPT STRING:\n------------------------")
+# console.print(prompt)
+# print()
 
 gendata = parse_prompt_string(prompt)
 print("GEN DATA:\n---------------")

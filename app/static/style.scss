@@ -60,6 +60,10 @@ html {
     padding: 8px;
     width: max-content;
     justify-content: center;
+
+    &:hover {
+        background-color: rgb(17, 61, 184);
+    }
 }
 
 input, textarea {
@@ -73,15 +77,74 @@ input, textarea {
 
 
 #main {
-    grid-template-columns: max-content 1fr;
+    grid-template-columns: auto max-content 1fr;
     grid-template-rows: 1fr;
     column-gap: 1rem;
     row-gap: 1.5rem;
     
-    @media only screen and (max-width: 900px) {
-        grid-template-columns: auto;
-        grid-template-rows: auto auto;
-        justify-content: center;
+    // @media only screen and (max-width: 900px) {
+    //     grid-template-columns: auto;
+    //     grid-template-rows: auto auto;
+    //     justify-content: center;
+    // }
+
+    #explorer-container {
+        padding: 10px;
+        width: auto;
+        // width: 350px;
+        grid-template-rows: max-content auto;
+
+        #directory-path-wrapper {
+            display: grid;
+            align-content: start;
+        }
+
+        #directory-table-wrapper {
+            table#image-files {
+                border-collapse: separate;
+                border-spacing: 0 5px;
+
+                $bg-row-hover: rgb(255, 199, 120);
+                tr:not(.headers) {
+                    cursor: pointer;
+
+                    td {
+                        // background-color: pink;
+                        border-color: transparent;
+                        border-style: solid;
+                        
+                        &:first-child, &:last-child {
+                            border-color: transparent;
+                            border-top-style: solid;
+                        }
+
+                        &:first-child {
+                            border-top-left-radius: 5px;
+                            border-bottom-left-radius: 5px;
+                            border-left-style: solid;
+                        }
+                        &:last-child {
+                            border-top-right-radius: 5px;
+                            border-bottom-right-radius: 5px;
+                            border-right-style: solid;
+                        }
+                    }
+
+                    &:hover {
+                        td {
+                            background-color: $bg-row-hover;
+                        }
+                    }
+                  
+                }
+
+                td, th {
+                    text-align: left;
+                    padding: 1px;
+                }
+
+            }
+        }
     }
 
     #image-upload-container {
@@ -101,23 +164,30 @@ input, textarea {
         #image-display-container {
             position: relative;
             cursor: pointer;
-            width: 500px;
-            height: 500px;
+            // width: 500px;
+            // height: 500px;
+            width: 350px;
+            height: 350px;
             
-            @media only screen and (max-width: 1200px) {
-                width: 450px;
-                height: 450px;
-            }
+            // @media only screen and (max-width: 1200px) {
+            //     width: 450px;
+            //     height: 450px;
+            // }
 
-            @media only screen and (max-width: 1100px) {
-                width: 400px;
-                height: 400px;
-            }
+            // @media only screen and (max-width: 1100px) {
+            //     width: 400px;
+            //     height: 400px;
+            // }
 
-            @media only screen and (max-width: 680px) {
-                width: unset;
-                height: unset;
-            }
+            // @media only screen and (max-width: 900px) {
+            //     width: 350px;
+            //     height: 350px;
+            // }
+
+            // @media only screen and (max-width: 680px) {
+            //     width: unset;
+            //     height: unset;
+            // }
             
             background-color: $bg-upload-container-lite;
             color: #000;
@@ -218,7 +288,6 @@ input, textarea {
     }
 
     #image-generation-details-container {
-        display: grid;
         row-gap: 1.5rem;
         font-size: 1rem;
         grid-template-rows: max-content;
@@ -474,85 +543,85 @@ input, textarea {
                     }
                 }
 
-                @media only screen and (max-width: 440px) {
-                    & {
-                        grid-template-columns: max-content max-content;
-                        div#size-inputs-wrapper {
-                            grid-column: 1 / span 1;
-                            grid-row: 1 / span 1;
-                        }
-                        div#resolution-select-grid {
-                            grid-column: 2 / span 1;
-                            grid-row: 1 / span 1;
-                            border-right: unset;
-                        }
-                        div#sampler-scheduler {
-                            grid-column: 1 / span 2;
-                            grid-row: 2 / span 1;
-                            .detail-value {
-                                width: auto;
-                            }
-                        }
+                // @media only screen and (max-width: 440px) {
+                //     & {
+                //         grid-template-columns: max-content max-content;
+                //         div#size-inputs-wrapper {
+                //             grid-column: 1 / span 1;
+                //             grid-row: 1 / span 1;
+                //         }
+                //         div#resolution-select-grid {
+                //             grid-column: 2 / span 1;
+                //             grid-row: 1 / span 1;
+                //             border-right: unset;
+                //         }
+                //         div#sampler-scheduler {
+                //             grid-column: 1 / span 2;
+                //             grid-row: 2 / span 1;
+                //             .detail-value {
+                //                 width: auto;
+                //             }
+                //         }
                         
-                        div#cfg-steps-seed {
-                            grid-column: 1 / span 2;
-                            grid-row: 3 / span 1;
-                        }
-                    }
-                }
+                //         div#cfg-steps-seed {
+                //             grid-column: 1 / span 2;
+                //             grid-row: 3 / span 1;
+                //         }
+                //     }
+                // }
 
-                @media only screen and (max-width: 680px) {
-                    & {
-                        // grid-template-columns: max-content max-content max-content;
-                        grid-template-columns: max-content max-content max-content;
-                        div#size-inputs-wrapper {
-                            grid-column: 1 / span 1;
-                            grid-row: 1 / span 1;
-                        }
-                        div#resolution-select-grid {
-                            grid-column: 2 / span 1;
-                            grid-row: 1 / span 1;
-                            border-right: unset;
-                        }
-                        div#sampler-scheduler {
-                            grid-column: 1 / span 3;
-                            grid-row: 2 / span 1;
-                        }
+                // @media only screen and (max-width: 680px) {
+                //     & {
+                //         // grid-template-columns: max-content max-content max-content;
+                //         grid-template-columns: max-content max-content max-content;
+                //         div#size-inputs-wrapper {
+                //             grid-column: 1 / span 1;
+                //             grid-row: 1 / span 1;
+                //         }
+                //         div#resolution-select-grid {
+                //             grid-column: 2 / span 1;
+                //             grid-row: 1 / span 1;
+                //             border-right: unset;
+                //         }
+                //         div#sampler-scheduler {
+                //             grid-column: 1 / span 3;
+                //             grid-row: 2 / span 1;
+                //         }
                         
-                        div#cfg-steps-seed {
-                            grid-column: 1 / span 3;
-                            grid-row: 3 / span 1;
-                        }
-                    }
-                }
+                //         div#cfg-steps-seed {
+                //             grid-column: 1 / span 3;
+                //             grid-row: 3 / span 1;
+                //         }
+                //     }
+                // }
 
-                @media only screen and (max-width: 1100px) {
-                    & {
-                        grid-template-columns: max-content max-content max-content;
-                        grid-template-areas: 
-                        "sizeInputs resSelectGrid samplerSched"
-                        "sizeInputs resSelectGrid cfgStepsSeed";
-                        div#size-inputs-wrapper {
-                            grid-area: sizeInputs;
-                        }
-                        div#resolution-select-grid {
-                            grid-area: resSelectGrid;
-                            border-right: unset;
-                        }
-                        div#sampler-scheduler {
-                            grid-area: samplerSched;
-                            .detail-value {
-                                width: 12rem;
-                            }
-                        }
+                // @media only screen and (max-width: 1100px) {
+                //     & {
+                //         grid-template-columns: max-content max-content max-content;
+                //         grid-template-areas: 
+                //         "sizeInputs resSelectGrid samplerSched"
+                //         "sizeInputs resSelectGrid cfgStepsSeed";
+                //         div#size-inputs-wrapper {
+                //             grid-area: sizeInputs;
+                //         }
+                //         div#resolution-select-grid {
+                //             grid-area: resSelectGrid;
+                //             border-right: unset;
+                //         }
+                //         div#sampler-scheduler {
+                //             grid-area: samplerSched;
+                //             .detail-value {
+                //                 width: 12rem;
+                //             }
+                //         }
                         
-                        div#cfg-steps-seed {
-                            grid-area: cfgStepsSeed;
-                            // grid-column: 1 / span 3;
-                            // grid-row: 3 / span 1;
-                        }
-                    }
-                }
+                //         div#cfg-steps-seed {
+                //             grid-area: cfgStepsSeed;
+                //             // grid-column: 1 / span 3;
+                //             // grid-row: 3 / span 1;
+                //         }
+                //     }
+                // }
 
 
             }
@@ -599,35 +668,36 @@ input, textarea {
             }
         }
 
-        .detail-wrapper {
-            display: grid;
-            grid-template-rows: max-content max-content;
-            row-gap: 0.2rem;
-            
-            &.hz {
-                grid-template-columns: max-content max-content;
-                grid-template-rows: max-content;
-                column-gap: 0.5rem;
-            }
-            
-            .detail-label {
-                font-weight: bold;
-                align-self: center;
-            }
 
-            .detail-value {
-                border: 1px solid;
-                border-color: #c7c7c7;
-                background-color: $bg-input-lite;
-                border-radius: 0.5rem;
-                padding: 0.2rem;
-            }
-
-        }
 
     }
 }
 
+.detail-wrapper {
+    display: grid;
+    grid-template-rows: max-content max-content;
+    row-gap: 0.2rem;
+    
+    &.hz {
+        grid-template-columns: max-content max-content;
+        grid-template-rows: max-content;
+        column-gap: 0.5rem;
+    }
+    
+    .detail-label {
+        font-weight: bold;
+        align-self: center;
+    }
+
+    .detail-value {
+        border: 1px solid;
+        border-color: #c7c7c7;
+        background-color: $bg-input-lite;
+        border-radius: 0.5rem;
+        padding: 0.2rem;
+    }
+
+}
 
 body.dark {
     background-color: $bg-body-dark !important;

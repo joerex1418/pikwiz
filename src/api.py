@@ -48,6 +48,22 @@ class SettingsDict(OrderedDict):
             if k not in default_keys:
                 self.setdefault(k, v)
 
+def parse_air_string(string:str) -> dict:
+    m = re.search(
+        r"^(?:urn:)?(?:air:)?(?:([a-zA-Z0-9_\-\/]+):)?(?:([a-zA-Z0-9_\-\/]+):)?([a-zA-Z0-9_\-\/]+):([a-zA-Z0-9_\-\/]+)(?:@([a-zA-Z0-9_\-]+))?(?:\.([a-zA-Z0-9_\-]+))?$", 
+        string
+    )
+
+    if m:
+        airdict = {"ecosystem": None, "type": None, "source": None, "id": None, "version": None, "format": None}
+        groups = m.groups()
+        
+        if len(groups) == 6:
+            airdict["ecosystem"], airdict["type"], airdict["source"], airdict["id"], airdict["version"], airdict["format"] = m.groups()
+        elif len(groups) == 5:
+            airdict["ecosystem"], airdict["type"], airdict["source"], airdict["id"], airdict["version"] = m.groups()
+        
+        return airdict
 
 def get_pillow_image_object(obj: str | Path | io.BytesIO | Image.Image) -> Image.Image | None:
     if isinstance(obj, Image.Image):
@@ -75,7 +91,7 @@ def extract_prompt_from_image(image_or_path: str | Path | io.BytesIO | Image.Ima
         prompt_str = image.info["parameters"]
 
     elif "prompt" in image.info.keys() and "generation_data" in image.info.keys():
-        # Tensor Art
+        # TensorArt
         prompt = json.loads(image.info["prompt"])
         gen_data = json.loads(image.info["generation_data"].replace("\x00", ""))
 
@@ -95,19 +111,19 @@ def extract_prompt_from_image(image_or_path: str | Path | io.BytesIO | Image.Ima
                     else:
                         cprint.bright_red("Couldn't find data in UserComment")
 
-        except:
-            try:
-                # Might be COMFYUI
-                comfy_prompt = json.loads(image.info["prompt"])
-                comfy_workflow = json.loads(image.info["workflow"])
-                prompt_str = "COMFYUI__" + json.dumps({"prompt": comfy_prompt, "workflow": comfy_workflow})
-            except:
-                exif_bytes: bytes = image.info["exif"]
+        except AttributeError:
+            # ComfyUI
+            comfy_prompt = json.loads(image.info["prompt"])
+            comfy_workflow = json.loads(image.info["workflow"])
+            prompt_str = "COMFYUI__" + json.dumps({"prompt": comfy_prompt, "workflow": comfy_workflow})
+        except Exception as e:
+            cprint.bright_red(e)
+            exif_bytes: bytes = image.info["exif"]
 
-                if b"UNICODE" in exif_bytes:
-                    prompt_str = exif_bytes[exif_bytes.find(b"UNICODE") + 7:].decode("utf-8")
-                else:
-                    cprint.bright_red("Couldn't find data in exif byte string")
+            if b"UNICODE" in exif_bytes:
+                prompt_str = exif_bytes[exif_bytes.find(b"UNICODE") + 7:].decode("utf-8")
+            else:
+                cprint.bright_red("Couldn't find data in exif byte string")
 
     prompt_str = prompt_str.replace("\x00", "")
 
@@ -118,13 +134,11 @@ def parse_prompt_string(raw_prompt_string, **kwargs):
     json_data = None
     extra_metadata = None
 
-    # Tensor.Art gen data
+    # TensorArt gen data
     if "TENSOR-ART__" in raw_prompt_string:
         raw_prompt_string = raw_prompt_string.replace("TENSOR-ART__", "")
         json_data = json.loads(raw_prompt_string)
         gen_data = json_data["generation_data"]
-        # console.print(json_data)
-        # console.print(gen_data)
 
         lora_models = []
         embed_models = []
@@ -159,12 +173,13 @@ def parse_prompt_string(raw_prompt_string, **kwargs):
         }
         return generation_data
     
+    # ComfyUI gen data
     if "COMFYUI__" in raw_prompt_string:
         raw_prompt_string = raw_prompt_string.replace("COMFYUI__", "")
         json_data = json.loads(raw_prompt_string)
         node_data = json_data["prompt"]
         for node_key, node in node_data.items():
-            if node["class_type"] == "KSampler":
+            if node["class_type"] in ("KSampler", "KSamplerAdvanced"):
                 inputs = node.get("inputs", {})
                 sampler_name = inputs.get("sampler_name")
                 scheduler = inputs.get("scheduler")
@@ -172,7 +187,7 @@ def parse_prompt_string(raw_prompt_string, **kwargs):
                 steps = inputs.get("steps")
                 seed = inputs.get("seed")
                 
-                checkpoint_key, checkpoint_clip = inputs.get("model", [None, None])
+                model_key, model_clip = inputs.get("model", [None, None])
                 pos_prompt_key, pos_prompt_clip = inputs.get("positive", [None, None])
                 neg_prompt_key, neg_prompt_clip = inputs.get("negative", [None, None])
                 latent_img_key, latent_img_clip = inputs.get("latent_image", [None, None])
@@ -193,7 +208,7 @@ def parse_prompt_string(raw_prompt_string, **kwargs):
                         "seed": seed,
                         "sampler": sampler_name,
                         "schedule_type": scheduler,
-                        "model": node_data[checkpoint_key].get("inputs", {}).get("ckpt_name"),
+                        "model": node_data[model_key].get("inputs", {}).get("ckpt_name"),
                         "width": width,
                         "height": height,
                         "size": size,
@@ -212,16 +227,50 @@ def parse_prompt_string(raw_prompt_string, **kwargs):
         # ==================================== #
         # CivitAI on-site img2img gen
         # ==================================== #
-        extra_metadata = json.loads(json_data["extraMetadata"])
-        console.print_json(data=extra_metadata)
+        cprint.bright_magenta("civitai img2img")
+        # console.print_json(data=json_data)
+        # with Path().cwd().joinpath("temp.json").open("w+") as fp:
+        #     json.dump(json_data, fp)
+        node_data = {k:v for k, v in json_data.items() if str(k).isdigit()}
+        for node_key, node in node_data.items():
+            if node["class_type"] in ("KSampler", "KSamplerAdvanced"):
+                inputs = node.get("inputs", {})
+                sampler_name = inputs.get("sampler_name")
+                scheduler = inputs.get("scheduler")
+                cfg = inputs.get("cfg")
+                steps = inputs.get("steps")
+                seed = inputs.get("seed")
+                
+
+                model_key, model_clip = inputs.get("model", [None, None])
+                pos_prompt_key, pos_prompt_clip = inputs.get("positive", [None, None])
+                neg_prompt_key, neg_prompt_clip = inputs.get("negative", [None, None])
+                latent_img_key, latent_img_clip = inputs.get("latent_image", [None, None])
+
+                lora_models = []
+                embed_models = []
+                
+                width = node_data[latent_img_key].get("inputs", {}).get("width")
+                height = node_data[latent_img_key].get("inputs", {}).get("height")
+                size = f"{width}x{height}" if (width, height) != (None, None) else None
+
+                break
+        
+        # for k, v in json_data.items():
+        #     if "resource-stack" in k:
+        #         if "checkpoint" in v["class_type"].lower():
+
+        extra_metadata = json.loads(json_data.get("extraMetadata", {}))
         
         prompts = "{} \nNegative prompt: {}\n".format(extra_metadata["prompt"], extra_metadata["negativePrompt"])
         
-        settings = "Steps: {steps}, CFG Scale: {cfgscale}, Sampler: {sampler}, Schedule type: {scheduler}, workflowId: {workflowid}, civitai resources: {civitai_resources}".format(
+        settings = "Steps: {steps}, CFG Scale: {cfgscale}, Sampler: {sampler}, Schedule type: {scheduler}, Seed: {seed}, Size: {size}, workflowId: {workflowid}, civitai resources: {civitai_resources}".format(
             steps = extra_metadata["steps"],
             cfgscale = extra_metadata["cfgScale"],
             sampler = SAMPLERS.get(extra_metadata["sampler"], ['', ''])[0],
             scheduler = SAMPLERS.get(extra_metadata["sampler"], ['', ''])[1],
+            seed = seed,
+            size = size if size != None else "-x-",
             workflowid = extra_metadata["workflowId"],
             civitai_resources = json.dumps(extra_metadata["resources"])
         )
@@ -229,6 +278,10 @@ def parse_prompt_string(raw_prompt_string, **kwargs):
         match = re.search(r"(?P<prompts>.*?)(?P<settings>steps:.*)", raw_prompt_string, re.DOTALL | re.IGNORECASE)
         prompts = match.groupdict()["prompts"]
         settings = match.groupdict()["settings"]
+    
+    # console.print(raw_prompt_string)
+    # console.print(prompts)
+    # console.print(settings)
     
     # ==================================== #
     # CivitAI on-site img2img gen

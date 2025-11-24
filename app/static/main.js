@@ -1,6 +1,8 @@
 let allowAutoHeight = false;
 let allowAutoWidth = false;
 
+const directoryPathElem = document.getElementById("directory-path")
+
 document.getElementById("image-display-container").addEventListener("click", function() {
     document.getElementById("photo-upload").click();
 })
@@ -110,6 +112,49 @@ function clearAll() {
 }
 
 document.getElementById("clear-btn").addEventListener("click", clearAll)
+
+function createImageRow(filename, created, size) {
+    const tr = document.createElement("tr");
+    tr.classList.add("image-file-row");
+
+    const tdName = document.createElement("td");
+    tdName.classList.add("filename");
+    tdName.textContent = filename;
+
+    const tdCreated = document.createElement("td");
+    tdCreated.classList.add("created");
+    tdCreated.textContent = created;
+
+    const tdSize = document.createElement("td");
+    tdSize.classList.add("size");
+    tdSize.textContent = size;
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdCreated);
+    tr.appendChild(tdSize);
+
+    return tr;
+}
+
+document.getElementById("load-directory-btn").addEventListener("click", function() {
+    let directoryPath = directoryPathElem.value.trim()
+    fetch(
+        "/load-directory?" + new URLSearchParams({path: directoryPath}), { 
+            method: "GET" 
+        }
+    )
+    .then(response => response.json())
+    .then(data => {
+        document.querySelectorAll("#image-files tr:not(.headers)").forEach(elem => {
+            elem.remove()
+        })
+
+        data.forEach(item => {
+            let trElem = createImageRow(item.name, item.created, item.sizeDisplay)
+            document.querySelector("#image-files tbody").appendChild(trElem)
+        })
+    })
+})
 
 // ----------------------------- //
 // Implement drag-and-drop

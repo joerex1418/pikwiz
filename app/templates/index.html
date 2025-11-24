@@ -5,10 +5,42 @@
 </div>
 
 <script>
-    document.body.classList.add("dark")
+    <!-- document.body.classList.add("dark") -->
 </script>
 
 <div id="main" class="container">
+    <div id="explorer-container" class="container">
+        <div id="directory-path-wrapper" class="detail-wrapper">
+            <div for="directory-path" class="detail-label">Directory</div>
+            <input type="text" name="directory-path" id="directory-path" class="detail-value">
+            <div id="load-directory-btn" class="btn">Load</div>
+        </div>
+
+        <div id="directory-table-wrapper">
+            <table id="image-files">
+                <tbody>
+                    <tr class="headers">
+                        <th class="filename">Name</th>
+                        <th class="created">Created</th>
+                        <th class="size">Size</th>
+                    </tr>
+
+                    <tr class="image-file-row">
+                        <td class="filename">IMG_0001.jpg</td>
+                        <td class="created">2025-04-08</td>
+                        <td class="size">1.5 MB</td>
+                    </tr>
+
+                    <tr class="image-file-row">
+                        <td class="filename">LONG_IMAGE_NAME_HERE00022.png</td>
+                        <td class="created">2025-05-30</td>
+                        <td class="size">1.5 MB</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <div id="image-upload-container" class="container">
 
         <div id="image-display-container" class="container">
