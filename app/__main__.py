@@ -4,7 +4,7 @@ import json
 import pathlib
 
 import pyperclip
-from flask import request
+from flask import request, send_file
 from flask.app import Flask
 from flask.json import jsonify
 from flask.templating import render_template
@@ -17,6 +17,8 @@ sys.path.insert(0, str(project_root))
 # from src.parse import parse_prompt_string
 from src.color import color
 from src.color import console as console
+from src.api import extract_prompt_from_image
+from src.api import parse_prompt_string
 # from src.civitai_api import civitai
 # from src.civitai_api import model_lookup
 # from src.civitai_api import model_version_lookup
@@ -81,6 +83,7 @@ def load_directory():
                 "name": fileitem.name,
                 "type": fileitem.suffix,
                 "fullPath": fileitem.resolve().__str__(),
+                "fullDirPath": fileitem.parent.resolve().__str__(),
                 "sizeDisplay": size_display,
                 "size": size,
                 "createdDisplay": "TBD",
@@ -135,6 +138,21 @@ def civitai_dev():
     # data = api.get_tools()
 
     return data
+
+@app.route("/extract-prompt2", methods=["POST"])
+def extract_prompt2():
+    filepath = request.json.get("fullpath")
+    img = extract_prompt_from_image(filepath)
+    data = parse_prompt_string(img)
+
+    return data
+
+@app.route("/image")
+def image():
+    path = request.args.get("path")
+    path = pathlib.Path(path)
+    return send_file(path)
+
 
 @app.route("/extract-prompt", methods=["POST"])
 def extract_prompt():

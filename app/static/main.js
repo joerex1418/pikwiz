@@ -113,9 +113,11 @@ function clearAll() {
 
 document.getElementById("clear-btn").addEventListener("click", clearAll)
 
-function createImageRow(filename, created, size) {
+function createImageRow(filename, created, size, dirPath, fullPath) {
     const tr = document.createElement("tr");
     tr.classList.add("image-file-row");
+    tr.dataset["dirpath"] = dirPath;
+    tr.dataset["fullpath"] = fullPath;
 
     const tdName = document.createElement("td");
     tdName.classList.add("filename");
@@ -136,6 +138,7 @@ function createImageRow(filename, created, size) {
     return tr;
 }
 
+
 document.getElementById("load-directory-btn").addEventListener("click", function() {
     let directoryPath = directoryPathElem.value.trim()
     fetch(
@@ -146,15 +149,68 @@ document.getElementById("load-directory-btn").addEventListener("click", function
     .then(response => response.json())
     .then(data => {
         document.querySelectorAll("#image-files tr:not(.headers)").forEach(elem => {
-            elem.remove()
+            elem.remove();
         })
 
         data.forEach(item => {
-            let trElem = createImageRow(item.name, item.created, item.sizeDisplay)
-            document.querySelector("#image-files tbody").appendChild(trElem)
+            let trElem = createImageRow(item.name, item.created, item.sizeDisplay, item.fullDirPath, item.fullPath);
+            document.querySelector("#image-files tbody").appendChild(trElem);
         })
     })
 })
+
+document.getElementById("image-files").addEventListener("click", function(e) {
+    if (e.target.closest(".image-file-row")) {
+        const imageRowElem = e.target.closest(".image-file-row");
+        
+        const fileName = imageRowElem.querySelector(".filename").textContent;
+        const dirPath = imageRowElem.dataset["dirpath"];
+        const fullPath = imageRowElem.dataset["fullpath"];
+
+        const jsonData = {
+            filename: fileName,
+            fullpath: fullPath,
+            dirpath: dirPath
+        }
+    
+        document.querySelector("#image-preview img").src = "/image?" + new URLSearchParams({path: fullPath}).toString();
+    // fetch("/image?" + new URLSearchParams({path: fullPath}), {
+    //     method: "GET",
+    // })
+
+    fetch("/extract-prompt2", {
+        method: "POST",
+        body: JSON.stringify(jsonData),
+        headers: {
+            "content-type": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // console.log(data);
+
+        document.querySelector("#model-checkpoint input").value = data.settings["model"];
+        document.querySelector("#positive-prompt textarea").value = data["positive"];
+        document.querySelector("#negative-prompt textarea").value = data["negative"];
+        document.querySelector("#width input").value = data.settings["width"];
+        document.querySelector("#height input").value = data.settings["height"];
+        document.querySelector("#sampler input").value = data.settings["sampler"];
+        document.querySelector("#schedule-type input").value = data.settings["schedule_type"];
+
+        document.querySelector("#cfg-scale input").value = data.settings["cfg_scale"];
+        document.querySelector("#steps input").value = data.settings["steps"];
+        document.querySelector("#seed input").value = data.settings["seed"];
+
+        // Reset scale adjustment to 1.00 by default
+        resetScaleAdjust();
+
+    })
+    .catch(error => console.log("ERROR:", error))
+
+
+    }
+})
+
 
 // ----------------------------- //
 // Implement drag-and-drop
