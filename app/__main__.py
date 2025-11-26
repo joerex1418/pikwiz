@@ -64,7 +64,7 @@ def load_directory():
         ...
 
     if sort_by == "created" or sort_by == "modified":
-        directory_items = sorted(directory_items, key=lambda x: getattr(x.stat(), correct_attribute))
+        directory_items = sorted(directory_items, key=lambda x: getattr(x.stat(), correct_attribute), reverse=True)
 
     IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
     image_files = []
